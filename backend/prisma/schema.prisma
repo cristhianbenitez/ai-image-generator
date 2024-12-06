@@ -16,8 +16,7 @@ datasource db {
 }
 
 model Dinosaur {
-  id        Int     @id @default(autoincrement())
-  name      String  @unique
-  type      String
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
   description String
 }
