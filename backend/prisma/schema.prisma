@@ -6,9 +6,18 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["deno"]
+  output = "../generated/client"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Dinosaur {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  type      String
+  description String
 }
