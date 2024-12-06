@@ -117,7 +117,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/fernando/Desktop/Proyectos/ai-image-generator/backend/generated/client",
+      "value": "/Users/pipebenitez/Desktop/ai-image-generator/backend/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -126,14 +126,14 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [
       "deno"
     ],
-    "sourceFilePath": "/home/fernando/Desktop/Proyectos/ai-image-generator/backend/prisma/schema.prisma",
+    "sourceFilePath": "/Users/pipebenitez/Desktop/ai-image-generator/backend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

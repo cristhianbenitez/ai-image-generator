@@ -1,20 +1,20 @@
-import { Prisma, PrismaClient } from "../generated/client/deno/edge.ts";
+import { Prisma, PrismaClient } from '../generated/client/deno/edge.ts';
 
 const prisma = new PrismaClient({
-  datasourceUrl: Deno.env.get("DATABASE_URL"),
+  datasourceUrl: Deno.env.get('DATABASE_URL'),
 });
 
 const dinosaurData: Prisma.DinosaurCreateInput[] = [
   {
-    name: "Aardonyx",
-    description: "An early stage in the evolution of sauropods.",
+    name: 'Aardonyx',
+    description: 'An early stage in the evolution of sauropods.',
   },
   {
-    name: "Abelisaurus",
+    name: 'Abelisaurus',
     description: "Abel's lizard has been reconstructed from a single skull.",
   },
   {
-    name: "Acanthopholis",
+    name: 'Acanthopholis',
     description: "No, it's not a city in Greece.",
   },
 ];

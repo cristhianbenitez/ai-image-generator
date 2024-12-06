@@ -119,7 +119,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/fernando/Desktop/Proyectos/ai-image-generator/backend/generated/client",
+      "value": "/Users/pipebenitez/Desktop/ai-image-generator/backend/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -128,14 +128,14 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [
       "deno"
     ],
-    "sourceFilePath": "/home/fernando/Desktop/Proyectos/ai-image-generator/backend/prisma/schema.prisma",
+    "sourceFilePath": "/Users/pipebenitez/Desktop/ai-image-generator/backend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -149,7 +149,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": true,
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -160,7 +160,7 @@ const config = {
   },
   "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider        = \"prisma-client-js\"\n  previewFeatures = [\"deno\"]\n  output          = \"../generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Dinosaur {\n  id          Int    @id @default(autoincrement())\n  name        String @unique\n  description String\n}\n",
   "inlineSchemaHash": "0e3b1aec9575bf09b6d0b83b6f730fd91e4e3463406065c71f6c83d406bb2115",
-  "copyEngine": true
+  "copyEngine": false
 }
 config.dirname = '/'
 

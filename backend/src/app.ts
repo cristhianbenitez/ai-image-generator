@@ -1,3 +1,3 @@
-import { Application } from "../generated/client/deno/edge";
+import { Application } from '../generated/client/deno/edge';
 
 const app = new Application();

@@ -1,3 +1,21 @@
-node_modules
-# Keep environment variables out of version control
+# Environment variables
 .env
+.env.*
+!.env.template
+
+# Deno specific
+deno.lock
+.deno/
+*.orig
+*.pyc
+*.swp
+
+# Generated files
+generated/
+
+# Dependencies
+node_modules/
+
+# OS specific
+.DS_Store
+Thumbs.db
