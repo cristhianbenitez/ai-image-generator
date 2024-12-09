@@ -95,32 +95,56 @@ router.get("/auth/github/callback", async (context) => {
     console.log("Token recibido:", token);
 
     // Usa el token para obtener información del usuario desde GitHub
-    const response = await fetch("https://api.github.com/user", {
+    const userResponse = await fetch("https://api.github.com/user", {
       headers: {
         Authorization: `Bearer ${token.accessToken}`,
       },
     });
 
-    const userInfo = await response.json();
+    if (!userResponse.ok) {
+      context.response.status = userResponse.status;
+      context.response.body = await userResponse.text();
+      return;
+    }
+    const userInfo = await userResponse.json();
     console.log("User Info:", userInfo);
 
-    // Verifica si el email está presente
-    if (!userInfo.email) {
+    // Solicita los correos electrónicos del usuario
+    const emailResponse = await fetch("https://api.github.com/user/emails", {
+      headers: {
+        Authorization: `Bearer ${token.accessToken}`,
+      },
+    });
+
+    if (!emailResponse.ok) {
+      context.response.status = emailResponse.status;
+      context.response.body = await emailResponse.text();
+      return;
+    }
+    const emails = await emailResponse.json();
+    console.log("User Emails:", emails);
+
+    // Selecciona el correo principal (o cualquier correo disponible)
+    const primaryEmail = emails.find((email: any) => email.primary)?.email ||
+      emails[0]?.email;
+
+    if (!primaryEmail) {
       context.response.status = 400;
-      context.response.body = { error: "Email not found from GitHub" };
-      console.log(userInfo);
+      context.response.body = {
+        error: "No email associated with GitHub account",
+      };
       return;
     }
 
     // Almacena o utiliza los datos del usuario en tu base de datos
     let user = await prisma.user.findUnique({
-      where: { email: userInfo.email },
+      where: { email: primaryEmail },
     });
 
     if (!user) {
       user = await prisma.user.create({
         data: {
-          email: userInfo.email || `noemail-${userInfo.id}@github.com`, // Default email if not found
+          email: primaryEmail,
           name: userInfo.name || "GitHub User",
           githubId: userInfo.id.toString(),
         },
