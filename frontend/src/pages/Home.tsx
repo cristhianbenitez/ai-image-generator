@@ -17,8 +17,8 @@ export const Home = () => {
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="w-full mx-[72px] my-[52px] flex justify-center gap-[30px]">
+    <section className="h-full flex items-center justify-center">
+      <div className="w-full mx-[72px] my-[52px] flex justify-center gap-[30px] ">
         <ImageGeneratorForm onSubmit={handleSubmit} />
 
         <div className="max-w-[511px] w-full h-[511px] bg-darkAlt rounded-lg flex items-center justify-center">
@@ -29,6 +29,6 @@ export const Home = () => {
           />
         </div>
       </div>
-    </div>
+    </section>
   );
 };
