@@ -11,6 +11,10 @@
     @apply h-full;
   }
 
+  #root {
+    @apply w-full h-full flex items-center;
+  }
+
   body {
     @apply bg-dark text-white;
   }
@@ -22,5 +26,37 @@
   }
   .active-path {
     @apply bg-purple focus:bg-purple hover:bg-purple;
+  }
+
+  .form-group {
+    @apply flex flex-col text-gray;
+  }
+
+  .form-input {
+    @apply w-full min-h-[42px] px-4 py-2 bg-darkAlt rounded-lg text-white font-normal outline-none;
+  }
+}
+
+/* Custom styles */
+
+.form-group > legend {
+  @apply text-label font-semibold mb-3;
+}
+
+/* Support for auto resize textarea */
+textarea.form-input {
+  @apply block;
+  height: 42px;
+  resize: none;
+  overflow: hidden;
+  line-height: 1.5;
+  writing-mode: horizontal-tb !important;
+}
+
+@supports (-webkit-appearance: none) {
+  textarea.form-input {
+    min-height: unset;
+    height: 42px;
+    box-sizing: border-box;
   }
 }
