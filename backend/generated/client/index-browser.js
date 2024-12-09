@@ -123,6 +123,13 @@ exports.Prisma.DinosaurScalarFieldEnum = {
   description: 'description'
 };
 
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  name: 'name',
+  githubId: 'githubId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -133,9 +140,15 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
-  Dinosaur: 'Dinosaur'
+  Dinosaur: 'Dinosaur',
+  User: 'User'
 };
 
 /**
