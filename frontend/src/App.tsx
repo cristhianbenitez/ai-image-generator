@@ -1,8 +1,17 @@
+import { Route, Routes } from 'react-router-dom';
+
+import { Layout } from '@components/Layout';
+import { Feed } from '@pages/Feed';
+import { Home } from '@pages/Home';
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-blue-600">My App</h1>
-    </div>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/feed" element={<Feed />} />
+      </Routes>
+    </Layout>
   );
 }
 
