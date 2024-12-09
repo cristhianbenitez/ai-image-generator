@@ -145,7 +145,7 @@ router.get("/auth/github/callback", async (context) => {
       user = await prisma.user.create({
         data: {
           email: primaryEmail,
-          name: userInfo.name || "GitHub User",
+          name: userInfo.login.toString() || "GitHub User",
           githubId: userInfo.id.toString(),
         },
       });
