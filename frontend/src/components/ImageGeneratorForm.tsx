@@ -8,7 +8,7 @@ import { useAutoResize } from '@hooks/useAutoResize';
 type FormDataType = {
   prompt: string;
   negativePrompt: string;
-  color: (typeof COLORS)[number];
+  color: (typeof COLORS)[number] | '';
   resolution: (typeof RESOLUTIONS)[number];
   guidance: number;
 };
@@ -49,7 +49,7 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
   const [formData, setFormData] = useState<FormDataType>({
     prompt: '',
     negativePrompt: '',
-    color: 'White',
+    color: '',
     resolution: '1024 × 1024 (1:1)',
     guidance: 5.0,
   });

@@ -21,7 +21,7 @@ const PATHS = [
   },
   {
     icon: CollectionIcon,
-    path: '/collections',
+    path: '/collection',
   },
 ];
 

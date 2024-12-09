@@ -1,7 +1,7 @@
 import BookmarkIcon from '@assets/icons/bookmark.svg';
 import { useState } from 'react';
 
-export const FeedItemCard = ({
+export const UserPostCard = ({
   name,
   image,
   avatar,
