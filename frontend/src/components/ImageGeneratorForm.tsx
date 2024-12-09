@@ -8,7 +8,7 @@ import { useAutoResize } from '@hooks/useAutoResize';
 type FormDataType = {
   prompt: string;
   negativePrompt: string;
-  color: (typeof COLORS)[number];
+  color: (typeof COLORS)[number] | '';
   resolution: (typeof RESOLUTIONS)[number];
   guidance: number;
 };
@@ -17,6 +17,7 @@ type ImageGeneratorFormProps = {
   onSubmit: (formData: FormDataType) => void;
 };
 
+// TODO: Move to a constant file
 export const RESOLUTIONS = [
   '1024 × 1024 (1:1)',
   '1152 × 896 (9:7)',
@@ -25,6 +26,7 @@ export const RESOLUTIONS = [
   '768 × 1344 (4:7)',
 ] as const;
 
+// TODO: Move to a constant file
 export const COLORS = [
   'Red',
   'Orange',
@@ -33,6 +35,8 @@ export const COLORS = [
   'Purple',
   'White',
 ] as const;
+
+// TODO: Move to a constant file
 export const COLORSHEX = {
   Red: '#DD524C',
   Orange: '#E87B35',
@@ -49,7 +53,7 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
   const [formData, setFormData] = useState<FormDataType>({
     prompt: '',
     negativePrompt: '',
-    color: 'White',
+    color: '',
     resolution: '1024 × 1024 (1:1)',
     guidance: 5.0,
   });
