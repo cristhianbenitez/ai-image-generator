@@ -11,6 +11,10 @@
     @apply h-full;
   }
 
+  #root {
+    @apply w-full h-full flex items-center;
+  }
+
   body {
     @apply bg-dark text-white;
   }

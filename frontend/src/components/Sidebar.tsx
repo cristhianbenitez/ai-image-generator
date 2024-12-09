@@ -31,7 +31,7 @@ export const Sidebar = () => {
     pathname === path ? 'active-path' : '';
 
   return (
-    <div className="w-full max-w-[72px] h-full flex flex-col items-center px-4 py-6 border-r border-darkAlt2">
+    <aside className="w-full max-w-[72px] h-full flex flex-col items-center px-4 py-6 border-r border-darkAlt2">
       <img src={LogoIcon} alt="Logo" className="w-[22px] h-[22px] mb-14" />
 
       <div className="flex flex-col gap-4">
@@ -50,6 +50,6 @@ export const Sidebar = () => {
       <button className="navigation-button mt-auto">
         <img src={SignInIcon} alt="Logout icon" />
       </button>
-    </div>
+    </aside>
   );
 };
