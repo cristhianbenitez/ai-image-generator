@@ -6,6 +6,7 @@ import SignInIcon from '@assets/icons/signin.svg';
 import LogoIcon from '@assets/logo.svg';
 import { Link, useLocation } from 'react-router-dom';
 
+// TODO: Move to a constant file
 const PATHS = [
   {
     icon: HomeIcon,

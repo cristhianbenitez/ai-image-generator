@@ -18,7 +18,7 @@ export const UserPostCard = ({
     <article className="w-full max-w-[248px] mb-6 break-inside-avoid">
       <header className="w-full rounded-lg overflow-hidden p-1 bg-darkAlt ">
         {!imageLoaded && (
-          <div className="w-full h-[300px] bg-darkAlt animate-pulse" />
+          <div className="w-[300px] h-[300px] bg-darkAlt animate-pulse" />
         )}
         <img
           src={image}
