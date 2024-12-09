@@ -17,7 +17,7 @@ export const Home = () => {
   };
 
   return (
-    <section className="h-full flex items-center justify-center">
+    <section className="h-full w-full flex items-center justify-center">
       <div className="w-full mx-[72px] my-[52px] flex justify-center gap-[30px] ">
         <ImageGeneratorForm onSubmit={handleSubmit} />
 
