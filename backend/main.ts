@@ -92,6 +92,7 @@ router.get("/auth/github/callback", async (context) => {
   try {
     // Intercambia el código por un token de acceso
     const token = await oauth2Client.code.getToken(url.toString());
+    console.log("Token recibido:", token);
 
     // Usa el token para obtener información del usuario desde GitHub
     const response = await fetch("https://api.github.com/user", {
@@ -101,6 +102,15 @@ router.get("/auth/github/callback", async (context) => {
     });
 
     const userInfo = await response.json();
+    console.log("User Info:", userInfo);
+
+    // Verifica si el email está presente
+    if (!userInfo.email) {
+      context.response.status = 400;
+      context.response.body = { error: "Email not found from GitHub" };
+      console.log(userInfo);
+      return;
+    }
 
     // Almacena o utiliza los datos del usuario en tu base de datos
     let user = await prisma.user.findUnique({
@@ -110,7 +120,7 @@ router.get("/auth/github/callback", async (context) => {
     if (!user) {
       user = await prisma.user.create({
         data: {
-          email: userInfo.email,
+          email: userInfo.email || `noemail-${userInfo.id}@github.com`, // Default email if not found
           name: userInfo.name || "GitHub User",
           githubId: userInfo.id.toString(),
         },
@@ -122,7 +132,7 @@ router.get("/auth/github/callback", async (context) => {
       user,
     };
   } catch (error) {
-    console.error("Error during GitHub OAuth:", error);
+    console.error("Error durante la autenticación con GitHub:", error);
     context.response.status = 500;
     context.response.body = { error: "Failed to authenticate with GitHub" };
   }
