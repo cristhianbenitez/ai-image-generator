@@ -5,9 +5,10 @@ import HomeIcon from '@assets/icons/home.svg';
 import SignInIcon from '@assets/icons/signin.svg';
 import SignOutIcon from '@assets/icons/signout.svg';
 import LogoIcon from '@assets/logo.svg';
+
+import { useAuth } from '@hooks';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 
 // TODO: Move to a constant file
 const PATHS = [

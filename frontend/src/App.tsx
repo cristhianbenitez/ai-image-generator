@@ -1,12 +1,9 @@
-import AuthModal from '@components/AuthModal';
-import { Layout } from '@components/Layout';
-import AuthCallback from '@pages/AuthCallback';
-import { Collection } from '@pages/Collection';
-import { Feed } from '@pages/Feed';
-import { Home } from '@pages/Home';
+import { AuthModal, Layout } from '@components';
+import { AuthCallback, Collection, Feed, Home } from '@pages';
+
+import { useAuth } from '@hooks';
 import { Route, Routes } from 'react-router-dom';
-import { ContextProvider } from './context/ContextProvider';
-import { useAuth } from './hooks/useAuth';
+import { ContextProvider } from '@context';
 
 function AppContent() {
   const { isAuthModalOpen, closeAuthModal } = useAuth();

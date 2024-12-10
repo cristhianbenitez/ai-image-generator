@@ -1,12 +1,12 @@
+import { useAuth } from '@hooks';
 import React from 'react';
-import { useAuth } from '../hooks/useAuth';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const { login } = useAuth();
 
@@ -68,5 +68,3 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     </div>
   );
 };
-
-export default AuthModal;
