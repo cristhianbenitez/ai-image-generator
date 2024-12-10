@@ -55,7 +55,7 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
     negativePrompt: '',
     color: '',
     resolution: '1024 × 1024 (1:1)',
-    guidance: 5.0,
+    guidance: 7.0,
   });
 
   const handleSubmit = async (e: FormEvent) => {
@@ -136,9 +136,13 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
               />
             </label>
           ))}
-          <div className="w-8 h-8 rounded-full border border-darkAlt2 flex items-center justify-center cursor-pointer">
+          <button
+            type="button"
+            onClick={() => setFormData(prev => ({ ...prev, color: '' }))}
+            className="w-8 h-8 rounded-full border border-darkAlt2 flex items-center justify-center cursor-pointer"
+          >
             <img src={CloseIcon} alt="Clear color" />
-          </div>
+          </button>
         </div>
       </fieldset>
 
@@ -181,12 +185,12 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
 
       <fieldset className="form-group">
         <legend className="text-gray text-label font-semibold">
-          Guidance ({formData.guidance.toFixed(1)})
+          Guidance Scale ({formData.guidance.toFixed(1)})
         </legend>
         <input
           type="range"
-          min="0"
-          max="10"
+          min="1"
+          max="15"
           step="0.1"
           value={formData.guidance}
           onChange={e =>
@@ -197,6 +201,10 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
           }
           className="w-full accent-purple"
         />
+        <div className="flex justify-between text-xs text-gray mt-1">
+          <span>Less Creative (1.0)</span>
+          <span>More Creative (15.0)</span>
+        </div>
       </fieldset>
 
       {/* Generate button */}
