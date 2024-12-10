@@ -11,10 +11,11 @@ deno.lock
 *.swp
 
 # Generated files
-generated/
+generated
+generated/*
 
 # Dependencies
-node_modules/
+node_modules
 
 # OS specific
 .DS_Store

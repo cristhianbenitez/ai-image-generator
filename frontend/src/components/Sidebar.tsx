@@ -3,8 +3,11 @@ import FeedIcon from '@assets/icons/feed.svg';
 import HistoryIcon from '@assets/icons/history.svg';
 import HomeIcon from '@assets/icons/home.svg';
 import SignInIcon from '@assets/icons/signin.svg';
+import SignOutIcon from '@assets/icons/signout.svg';
 import LogoIcon from '@assets/logo.svg';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 // TODO: Move to a constant file
 const PATHS = [
@@ -27,7 +30,10 @@ const PATHS = [
 ];
 
 export const Sidebar = () => {
+  const [showLogout, setShowLogout] = useState(false);
   const { pathname } = useLocation();
+  const { user, openAuthModal, logout } = useAuth();
+
   const isInCurrentPathStyle = (path: string) =>
     pathname === path ? 'active-path' : '';
 
@@ -48,9 +54,32 @@ export const Sidebar = () => {
         ))}
       </div>
 
-      <button className="navigation-button mt-auto">
-        <img src={SignInIcon} alt="Logout icon" />
-      </button>
+      {!user ? (
+        <button className="navigation-button mt-auto" onClick={openAuthModal}>
+          <img src={SignInIcon} alt="Sign in icon" />
+        </button>
+      ) : (
+        <div className="relative mt-auto ">
+          <div className="flex items-center group">
+            <img
+              src={user.avatar}
+              alt="User avatar"
+              className="w-8 h-8 rounded-full cursor-pointer "
+              onClick={() => setShowLogout(!showLogout)}
+            />
+            <button
+              onClick={logout}
+              className={`absolute left-full ml-2 px-4 py-2 flex items-center justify-center gap-2 bg-darkAlt2 rounded text-sm text-white transition-opacity duration-200
+              ${
+                showLogout ? 'opacity-100' : 'opacity-0'
+              } w-[120px] group-hover:opacity-100`}
+            >
+              <img src={SignOutIcon} alt="Sign out icon" />
+              <span>Sign out</span>
+            </button>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };

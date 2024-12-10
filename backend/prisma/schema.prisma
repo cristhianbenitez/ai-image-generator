@@ -21,7 +21,8 @@ model Dinosaur {
   description String
 }
 model User {
-  id       Int    @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   name     String?
-  githubId String @unique
+  email    String  @unique
+  githubId String  @unique
 }

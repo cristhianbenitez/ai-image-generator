@@ -5,7 +5,9 @@
     "dev-frontend": "cd frontend && yarn dev",
     "install": "deno task install-frontend && deno task install-backend",
     "install-frontend": "cd frontend && yarn install",
-    "install-backend": "cd backend && deno run -A npm:prisma@latest generate --no-engine",
+    "install-backend": "cd backend && deno run --allow-net --allow-read --allow-write --allow-env --allow-run npm:prisma@latest generate",
+    "db:generate": "cd backend && deno run --allow-net --allow-read --allow-write --allow-env --allow-run npm:prisma@latest generate",
+    "db:push": "cd backend && deno run --allow-net --allow-read --allow-write --allow-env --allow-run npm:prisma@latest db push",
     "lint": "deno lint",
     "fmt": "deno fmt"
   },
