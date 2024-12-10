@@ -12,6 +12,7 @@ deno.lock
 
 # Generated files
 generated
+generated/*
 
 # Dependencies
 node_modules
