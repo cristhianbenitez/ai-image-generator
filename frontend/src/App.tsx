@@ -5,7 +5,7 @@ import { Collection } from '@pages/Collection';
 import { Feed } from '@pages/Feed';
 import { Home } from '@pages/Home';
 import { Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/auth';
+import { ContextProvider } from './context/ContextProvider';
 import { useAuth } from './hooks/useAuth';
 
 function AppContent() {
@@ -31,9 +31,9 @@ function AppContent() {
 // Wrapper component that provides context
 function App() {
   return (
-    <AuthProvider>
+    <ContextProvider>
       <AppContent />
-    </AuthProvider>
+    </ContextProvider>
   );
 }
 
