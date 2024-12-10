@@ -22,8 +22,22 @@ model Dinosaur {
   description String
 }
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String?
-  email    String  @unique
-  githubId String  @unique
+  id             Int              @id @default(autoincrement())
+  name           String?
+  email          String           @unique
+  githubId       String           @unique
+  generatedImages GeneratedImage[]
+}
+
+model GeneratedImage {
+  id            Int      @id @default(autoincrement())
+  prompt        String
+  negativePrompt String?
+  color         String?
+  resolution    String
+  guidance      Float
+  imageUrl      String
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int
 }
