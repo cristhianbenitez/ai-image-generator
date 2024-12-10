@@ -1,9 +1,9 @@
 import SearchIcon from '@assets/icons/search.svg';
 import { UserPostCard } from '@components';
-import { useGeneratedImages } from '@hooks';
+import { useData } from '@hooks';
 
 export const Feed = () => {
-  const { images, loading, error } = useGeneratedImages();
+  const { allImages, loading, error } = useData();
 
   return (
     <section className="w-full">
@@ -31,7 +31,7 @@ export const Feed = () => {
         </div>
       ) : (
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 max-w-[1100px] pb-10">
-          {images.map(image => (
+          {allImages.map(image => (
             <UserPostCard
               key={image.id}
               name={image.user.name}
