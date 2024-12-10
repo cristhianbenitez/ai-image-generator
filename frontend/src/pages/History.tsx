@@ -1,5 +1,4 @@
 import { useAuth, useData } from '@hooks';
-
 export const History = () => {
   const { user } = useAuth();
   const { userImages: images, loading, error } = useData();
@@ -30,70 +29,50 @@ export const History = () => {
 
   return (
     <section className="w-full max-w-[1100px]">
-      <h1 className="text-heading font-semibold mb-8">Generation History</h1>
-      <div className="grid gap-6">
+      <h1 className="text-2xl font-normal mb-8">Generation History</h1>
+      <div className="flex flex-col gap-10 w-full">
         {images.map(image => (
           <article
             key={image.id}
-            className="bg-darkAlt rounded-lg p-6 flex gap-6"
+            className="flex gap-10 w-full border-b border-darkAlt pb-10"
           >
-            <div className="w-[200px] h-[200px] flex-shrink-0">
+            <div className="w-[327px] h-auto flex-shrink-0 bg-darkAlt rounded-lg p-1">
               <img
                 src={image.imageUrl}
                 alt={image.prompt}
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
-            <div className="flex flex-col gap-4 flex-grow">
+            <div className="flex flex-col gap-8 flex-grow">
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-gray text-sm mb-2">Prompt details</h3>
+                  <p className="text-white">{image.prompt}</p>
+                </div>
+                <div>
+                  <h3 className="text-gray text-sm mb-2">Negative prompt</h3>
+                  <p className="text-gray">{image.negativePrompt || 'Null'}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-gray text-sm mb-2">Created on</h3>
+                  <p className="text-white">
+                    {new Date(image.createdAt).toLocaleDateString('en-US', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-gray text-sm mb-2">Input Resolution</h3>
+                  <p className="text-white">{image.resolution}</p>
+                </div>
+              </div>
               <div>
-                <h3 className="text-label font-semibold mb-2">Prompt</h3>
-                <p className="text-white">{image.prompt}</p>
-              </div>
-              {image.negativePrompt && (
-                <div>
-                  <h3 className="text-label font-semibold mb-2">
-                    Negative Prompt
-                  </h3>
-                  <p className="text-gray">{image.negativePrompt}</p>
-                </div>
-              )}
-              <div className="flex gap-6">
-                <div>
-                  <h3 className="text-label font-semibold mb-2">Resolution</h3>
-                  <p className="text-gray">{image.resolution}</p>
-                </div>
-                {image.color && (
-                  <div>
-                    <h3 className="text-label font-semibold mb-2">
-                      Color Theme
-                    </h3>
-                    <p className="text-gray">{image.color}</p>
-                  </div>
-                )}
-                <div>
-                  <h3 className="text-label font-semibold mb-2">
-                    Guidance Scale
-                  </h3>
-                  <p className="text-gray">{image.guidance}</p>
-                </div>
-                <div>
-                  <h3 className="text-label font-semibold mb-2">
-                    Seed
-                  </h3>
-                  <p className="text-gray">{image?.seed}</p>
-                </div>
-              </div>
-              <div className="mt-auto">
-                <p className="text-small text-gray">
-                  Generated on{' '}
-                  {new Date(image.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </p>
+                <h3 className="text-gray text-sm mb-2">Seed</h3>
+                <p className="text-white">{image.seed}</p>
               </div>
             </div>
           </article>
