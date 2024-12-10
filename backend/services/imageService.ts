@@ -14,6 +14,7 @@ export class ImageService {
     color?: string;
     resolution: string;
     guidance: number;
+    seed: number;
     imageUrl: string;
   }) {
     try {
@@ -34,6 +35,7 @@ export class ImageService {
           color: data.color || '',
           resolution: data.resolution,
           guidance: data.guidance,
+          seed: data.seed,
           imageUrl: data.imageUrl,
           userId: data.userId, // Direct assignment instead of using connect
         },

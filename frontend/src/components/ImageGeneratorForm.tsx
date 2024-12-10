@@ -1,43 +1,32 @@
-import { FormEvent, useRef, useState } from 'react';
-
 import CloseIcon from '@assets/icons/close.svg';
 import GenerateIcon from '@assets/icons/home.svg';
-
-import { COLORS, COLORSHEX, GUIDANCE_SCALE, RESOLUTIONS } from '@constants/image';
-import { useAutoResize } from '@hooks/useAutoResize';
-
-type FormDataType = {
-  prompt: string;
-  negativePrompt: string;
-  color: (typeof COLORS)[number] | '';
-  resolution: (typeof RESOLUTIONS)[number];
-  guidance: number;
-};
+import {
+  COLORS,
+  COLORSHEX,
+  GUIDANCE_SCALE,
+  RESOLUTIONS,
+} from '@constants/image';
+import { useAutoResize } from '@hooks';
+import type { FormData } from '@types';
+import { FormEvent, useRef } from 'react';
 
 type ImageGeneratorFormProps = {
-  onSubmit: (formData: FormDataType) => void;
+  formData: FormData;
+  onChange: (formData: FormData) => void;
+  onSubmit: (e: FormEvent) => void;
 };
 
-export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
+export const ImageGeneratorForm = ({
+  formData,
+  onChange,
+  onSubmit,
+}: ImageGeneratorFormProps) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   useAutoResize(textAreaRef);
 
-  const [formData, setFormData] = useState<FormDataType>({
-    prompt: '',
-    negativePrompt: '',
-    color: '',
-    resolution: '1024 × 1024 (1:1)',
-    guidance: 7.0,
-  });
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={onSubmit}
       className="flex flex-col flex-start gap-8 max-w-[511px] w-full"
     >
       {/* Prompt */}
@@ -46,9 +35,7 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
         <textarea
           ref={textAreaRef}
           value={formData.prompt}
-          onChange={e =>
-            setFormData(prev => ({ ...prev, prompt: e.target.value }))
-          }
+          onChange={e => onChange({ ...formData, prompt: e.target.value })}
           placeholder="Enter the prompt"
           className="form-input overflow-hidden"
           required
@@ -64,10 +51,7 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
           type="text"
           value={formData.negativePrompt}
           onChange={e =>
-            setFormData(prev => ({
-              ...prev,
-              negativePrompt: e.target.value,
-            }))
+            onChange({ ...formData, negativePrompt: e.target.value })
           }
           placeholder="Enter negative prompt"
           className="form-input min-h-[42px]"
@@ -95,10 +79,10 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
                 value={color}
                 checked={formData.color === color}
                 onChange={e =>
-                  setFormData(prev => ({
-                    ...prev,
+                  onChange({
+                    ...formData,
                     color: e.target.value as (typeof COLORS)[number],
-                  }))
+                  })
                 }
                 className="sr-only"
               />
@@ -110,7 +94,7 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
           ))}
           <button
             type="button"
-            onClick={() => setFormData(prev => ({ ...prev, color: '' }))}
+            onClick={() => onChange({ ...formData, color: '' })}
             className="w-8 h-8 rounded-full border border-darkAlt2 flex items-center justify-center cursor-pointer"
           >
             <img src={CloseIcon} alt="Clear color" />
@@ -132,8 +116,6 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
                   ? 'border-purple bg-purple text-white'
                   : 'border-darkAlt2 hover:border-purple'
               }`}
-              role="radio"
-              aria-checked={formData.resolution === resolution}
             >
               <input
                 type="radio"
@@ -141,13 +123,12 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
                 value={resolution}
                 checked={formData.resolution === resolution}
                 onChange={e =>
-                  setFormData(prev => ({
-                    ...prev,
+                  onChange({
+                    ...formData,
                     resolution: e.target.value as (typeof RESOLUTIONS)[number],
-                  }))
+                  })
                 }
                 className="sr-only"
-                aria-label={`Select ${resolution} resolution`}
               />
               <span className="text-small font-normal">{resolution}</span>
             </label>
@@ -166,10 +147,10 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
           step={GUIDANCE_SCALE.STEP}
           value={formData.guidance}
           onChange={e =>
-            setFormData(prev => ({
-              ...prev,
+            onChange({
+              ...formData,
               guidance: parseFloat(e.target.value),
-            }))
+            })
           }
           className="w-full accent-purple"
         />

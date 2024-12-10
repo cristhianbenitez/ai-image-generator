@@ -1,9 +1,9 @@
 import { AuthModal, Layout } from '@components';
-import { AuthCallback, Collection, Feed, Home } from '@pages';
+import { AuthCallback, Collection, Feed, History, Home } from '@pages';
 
+import { ContextProvider } from '@context';
 import { useAuth } from '@hooks';
 import { Route, Routes } from 'react-router-dom';
-import { ContextProvider } from '@context';
 
 function AppContent() {
   const { isAuthModalOpen, closeAuthModal } = useAuth();
@@ -14,6 +14,7 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/collection" element={<Collection />} />
+        <Route path="/history" element={<History />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/login"

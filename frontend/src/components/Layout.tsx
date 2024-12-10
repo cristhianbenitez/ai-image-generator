@@ -1,4 +1,4 @@
-import { Sidebar } from '@components/Sidebar';
+import { Sidebar } from '@components';
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   return (

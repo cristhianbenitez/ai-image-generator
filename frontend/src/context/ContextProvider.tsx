@@ -1,5 +1,6 @@
 import React from 'react';
-import { AuthProvider } from './auth';
+import { AuthProvider } from './auth/AuthContext';
+import { DataProvider } from './data/DataContext';
 import { ImageProvider } from './image/ImageContext';
 
 export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -7,7 +8,9 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   return (
     <AuthProvider>
-      <ImageProvider>{children}</ImageProvider>
+      <DataProvider>
+        <ImageProvider>{children}</ImageProvider>
+      </DataProvider>
     </AuthProvider>
   );
 };

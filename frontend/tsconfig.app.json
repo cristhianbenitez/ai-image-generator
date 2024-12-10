@@ -21,15 +21,17 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "src",
     "paths": {
-      "@/*": ["*"],
       "@pages": ["pages"],
       "@components": ["components"],
       "@assets": ["assets"],
       "@hooks": ["hooks"],
+      "@context": ["context"],
+      "@types": ["types"],
+      // not a lot of files in these folders so we can use the wildcard
       "@constants/*": ["constants/*"],
       "@config/*": ["config/*"],
-      "@context": ["context"],
-      "@utils": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@services/*": ["services/*"]
     }
   },
   "include": ["src"]

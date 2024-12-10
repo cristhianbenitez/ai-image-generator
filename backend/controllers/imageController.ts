@@ -11,6 +11,7 @@ interface SaveImageRequest {
   color?: string;
   resolution: string;
   guidance: number;
+  seed: number;
   imageUrl: string;
 }
 
