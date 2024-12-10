@@ -1,6 +1,6 @@
 import { API_ENDPOINTS } from '@config/api';
+import type { GeneratedImage } from '@types';
 import { useEffect, useState } from 'react';
-import type { GeneratedImage } from './useGeneratedImages';
 
 export const useUserImages = (userId: string | undefined) => {
   const [images, setImages] = useState<GeneratedImage[]>([]);

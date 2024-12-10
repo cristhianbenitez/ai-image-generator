@@ -1,15 +1,7 @@
 import { API_ENDPOINTS } from '@config/api';
 import { useAuth } from '@hooks';
-import type { GeneratedImage } from '@hooks/useGeneratedImages';
+import type { DataContextType, GeneratedImage } from '@types';
 import { createContext, useEffect, useState } from 'react';
-
-interface DataContextType {
-  allImages: GeneratedImage[];
-  userImages: GeneratedImage[];
-  loading: boolean;
-  error: string | null;
-  refetchData: () => Promise<void>;
-}
 
 export const DataContext = createContext<DataContextType | undefined>(
   undefined,

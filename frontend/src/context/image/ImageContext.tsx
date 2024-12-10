@@ -1,21 +1,12 @@
 import { API_ENDPOINTS } from '@config/api';
 import { useAuth } from '@hooks';
-import React, { useState } from 'react';
+import React, { createContext, useState } from 'react';
 
-import { COLORS, RESOLUTIONS } from '@constants/image';
-import {
-  GenerationStatus,
-  ImageContext,
-  ImageContextType,
-} from './ImageContext.types';
+import type { FormData, GenerationStatus, ImageContextType } from '@types';
 
-type FormData = {
-  prompt: string;
-  negativePrompt: string;
-  color: (typeof COLORS)[number] | '';
-  resolution: (typeof RESOLUTIONS)[number];
-  guidance: number;
-};
+export const ImageContext = createContext<ImageContextType | undefined>(
+  undefined,
+);
 
 // Utility functions for image processing
 const imageUtils = {
@@ -89,9 +80,9 @@ const apiService = {
     imageData: string,
   ): Promise<void> => {
     try {
-      const apiUrl = import.meta.env.DEV
-        ? import.meta.env.VITE_API_URL_LOCAL
-        : import.meta.env.VITE_API_URL;
+      // const apiUrl = import.meta.env.DEV
+      //   ? import.meta.env.VITE_API_URL_LOCAL
+      //   : import.meta.env.VITE_API_URL;
 
       const response = await fetch(API_ENDPOINTS.IMAGES, {
         method: 'POST',

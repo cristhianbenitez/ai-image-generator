@@ -2,6 +2,7 @@ import { FormEvent, useRef, useState } from 'react';
 
 import CloseIcon from '@assets/icons/close.svg';
 import GenerateIcon from '@assets/icons/home.svg';
+import type { FormData } from '@types';
 
 import {
   COLORS,
@@ -11,23 +12,15 @@ import {
 } from '@constants/image';
 import { useAutoResize } from '@hooks';
 
-type FormDataType = {
-  prompt: string;
-  negativePrompt: string;
-  color: (typeof COLORS)[number] | '';
-  resolution: (typeof RESOLUTIONS)[number];
-  guidance: number;
-};
-
 type ImageGeneratorFormProps = {
-  onSubmit: (formData: FormDataType) => void;
+  onSubmit: (formData: FormData) => void;
 };
 
 export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   useAutoResize(textAreaRef);
 
-  const defaultFormData: FormDataType = {
+  const defaultFormData: FormData = {
     prompt: '',
     negativePrompt: '',
     color: '',
@@ -35,7 +28,7 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
     guidance: 7.0,
   };
 
-  const [formData, setFormData] = useState<FormDataType>(defaultFormData);
+  const [formData, setFormData] = useState<FormData>(defaultFormData);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

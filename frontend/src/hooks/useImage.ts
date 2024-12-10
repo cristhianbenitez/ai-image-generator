@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ImageContext } from '../context/image/ImageContext.types';
+import { ImageContext } from '../context/image/ImageContext';
 
 export const useImage = () => {
   const context = useContext(ImageContext);
@@ -7,4 +7,4 @@ export const useImage = () => {
     throw new Error('useImage must be used within an ImageProvider');
   }
   return context;
-}; 
+};

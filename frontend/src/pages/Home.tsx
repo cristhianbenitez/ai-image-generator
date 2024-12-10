@@ -1,6 +1,6 @@
 import DefaultImage from '@assets/images/box-shapes.png';
-import { ImageGeneratorForm } from '@components/ImageGeneratorForm';
-import { useImage } from '@hooks/useImage';
+import { ImageGeneratorForm } from '@components';
+import { useImage } from '@hooks';
 
 export const Home = () => {
   const { generatedImage, status, error, generateImage } = useImage();
