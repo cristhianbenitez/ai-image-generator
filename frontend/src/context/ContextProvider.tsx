@@ -1,5 +1,5 @@
 import React from 'react';
-import { AuthProvider } from './auth';
+import { AuthProvider } from './auth/AuthContext';
 import { DataProvider } from './data/DataContext';
 import { ImageProvider } from './image/ImageContext';
 

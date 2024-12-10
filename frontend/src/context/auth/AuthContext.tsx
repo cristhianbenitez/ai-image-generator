@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import type { User } from './AuthContext.types';
-import { AuthContext } from './AuthContext.types';
+import type { AuthContextType, User } from '@types';
+import React, { createContext, useEffect, useState } from 'react';
+
+export const AuthContext = createContext<AuthContextType>(
+  {} as AuthContextType,
+);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
