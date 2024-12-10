@@ -1,8 +1,8 @@
+import { useAuth } from '@hooks';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 
-const AuthCallback = () => {
+export const AuthCallback = () => {
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const dataProcessed = useRef(false);
@@ -73,5 +73,3 @@ const AuthCallback = () => {
     </div>
   );
 };
-
-export default AuthCallback;

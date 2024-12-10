@@ -3,6 +3,7 @@ import { FormEvent, useRef, useState } from 'react';
 import CloseIcon from '@assets/icons/close.svg';
 import GenerateIcon from '@assets/icons/home.svg';
 
+import { COLORS, COLORSHEX, GUIDANCE_SCALE, RESOLUTIONS } from '@constants/image';
 import { useAutoResize } from '@hooks/useAutoResize';
 
 type FormDataType = {
@@ -16,35 +17,6 @@ type FormDataType = {
 type ImageGeneratorFormProps = {
   onSubmit: (formData: FormDataType) => void;
 };
-
-// TODO: Move to a constant file
-export const RESOLUTIONS = [
-  '1024 × 1024 (1:1)',
-  '1152 × 896 (9:7)',
-  '896 × 1152 (7:9)',
-  '1344 × 768 (7:4)',
-  '768 × 1344 (4:7)',
-] as const;
-
-// TODO: Move to a constant file
-export const COLORS = [
-  'Red',
-  'Orange',
-  'Green',
-  'Blue',
-  'Purple',
-  'White',
-] as const;
-
-// TODO: Move to a constant file
-export const COLORSHEX = {
-  Red: '#DD524C',
-  Orange: '#E87B35',
-  Green: '#5EC269',
-  Blue: '#4E80EE',
-  Purple: '#9D59EF',
-  White: '#E4E4E7',
-} as const;
 
 export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -189,9 +161,9 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
         </legend>
         <input
           type="range"
-          min="1"
-          max="15"
-          step="0.1"
+          min={GUIDANCE_SCALE.MIN}
+          max={GUIDANCE_SCALE.MAX}
+          step={GUIDANCE_SCALE.STEP}
           value={formData.guidance}
           onChange={e =>
             setFormData(prev => ({

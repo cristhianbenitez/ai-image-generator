@@ -1,5 +1,6 @@
 import { env } from '../config/env.ts';
 import { PrismaClient } from '../generated/client/deno/edge.ts';
+import { AppError, UserNotFoundError } from '../types/errors.ts';
 
 const prisma = new PrismaClient({
   datasources: { db: { url: env.DATABASE_URL } },
@@ -22,7 +23,7 @@ export class ImageService {
       });
 
       if (!user) {
-        throw new Error(`User with ID ${data.userId} not found`);
+        throw new UserNotFoundError(data.userId);
       }
 
       // Create the image record
@@ -38,15 +39,21 @@ export class ImageService {
         },
       });
     } catch (error) {
-      console.error('Error in saveGeneratedImage:', error);
-      throw new Error(`Failed to save image: ${error.message}`);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(`Failed to save image: ${error.message}`);
     }
   }
 
   async getUserImages(userId: number) {
-    return await prisma.generatedImage.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
+    try {
+      return await prisma.generatedImage.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (error) {
+      throw new AppError(`Failed to fetch user images: ${error.message}`);
+    }
   }
-} 
+}

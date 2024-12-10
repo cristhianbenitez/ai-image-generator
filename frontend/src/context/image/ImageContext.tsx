@@ -1,5 +1,8 @@
-import { useAuth } from '@hooks/useAuth';
+import { API_ENDPOINTS } from '@config/api';
+import { useAuth } from '@hooks';
 import React, { useState } from 'react';
+
+import { COLORS, RESOLUTIONS } from '@constants/image';
 import {
   GenerationStatus,
   ImageContext,
@@ -9,8 +12,8 @@ import {
 type FormData = {
   prompt: string;
   negativePrompt: string;
-  color: string;
-  resolution: string;
+  color: (typeof COLORS)[number] | '';
+  resolution: (typeof RESOLUTIONS)[number];
   guidance: number;
 };
 
@@ -55,7 +58,7 @@ const apiService = {
     );
     const { width, height } = imageUtils.parseResolution(formData.resolution);
 
-    const response = await fetch('https://api.segmind.com/v1/ssd-1b', {
+    const response = await fetch(API_ENDPOINTS.SEGMIND, {
       method: 'POST',
       headers: {
         'x-api-key': import.meta.env.VITE_SEGMIND_API_KEY,
@@ -90,7 +93,7 @@ const apiService = {
         ? import.meta.env.VITE_API_URL_LOCAL
         : import.meta.env.VITE_API_URL;
 
-      const response = await fetch(`${apiUrl}/api/images`, {
+      const response = await fetch(API_ENDPOINTS.IMAGES, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
