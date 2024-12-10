@@ -1,7 +1,6 @@
 import { Application, Router } from "https://deno.land/x/oak@v11.1.0/mod.ts";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import authRoutes from "./routes/authRoutes.ts";
-import dinosaurRoutes from "./routes/dinosaurRoutes.ts";
 import imageRoutes from "./routes/imageRoutes.ts";
 
 const app = new Application();
@@ -23,8 +22,6 @@ app.use(
 );
 
 // Routes
-app.use(dinosaurRoutes.routes());
-app.use(dinosaurRoutes.allowedMethods());
 app.use(authRoutes.routes());
 app.use(authRoutes.allowedMethods());
 app.use(imageRoutes.routes());
@@ -33,7 +30,7 @@ app.use(imageRoutes.allowedMethods());
 // Root route
 app.use((context) => {
   if (context.request.url.pathname === "/") {
-    context.response.body = "Welcome to the Dinosaur API!";
+    context.response.body = "Welcome to the API!";
   }
 });
 
