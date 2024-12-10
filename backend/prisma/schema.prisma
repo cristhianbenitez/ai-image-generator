@@ -8,6 +8,7 @@ generator client {
   provider = "prisma-client-js"
   previewFeatures = ["deno"]
   output = "../generated/client"
+  engineType = "binary"
 }
 
 datasource db {
@@ -21,7 +22,8 @@ model Dinosaur {
   description String
 }
 model User {
-  id       Int    @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   name     String?
-  githubId String @unique
+  email    String  @unique
+  githubId String  @unique
 }
