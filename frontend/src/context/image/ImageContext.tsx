@@ -57,6 +57,7 @@ const apiService = {
         prompt: coloredPrompt,
         negative_prompt: formData.negativePrompt,
         guidance_scale: formData.guidance,
+        seed: formData.seed,
         img_width: width,
         img_height: height,
       }),
@@ -78,10 +79,6 @@ const apiService = {
     imageData: string,
   ): Promise<void> => {
     try {
-      // const apiUrl = import.meta.env.DEV
-      //   ? import.meta.env.VITE_API_URL_LOCAL
-      //   : import.meta.env.VITE_API_URL;
-
       const response = await fetch(API_ENDPOINTS.IMAGES, {
         method: 'POST',
         headers: {
@@ -98,6 +95,7 @@ const apiService = {
           color: formData.color,
           resolution: formData.resolution,
           guidance: formData.guidance,
+          seed: formData.seed,
           imageUrl: imageData,
         }),
       });

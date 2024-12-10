@@ -16,6 +16,7 @@ export interface FormData {
   color: (typeof COLORS)[number] | '';
   resolution: (typeof RESOLUTIONS)[number];
   guidance: number;
+  seed: number;
 }
 
 export interface GeneratedImage {

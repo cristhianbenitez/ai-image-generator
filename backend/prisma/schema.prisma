@@ -32,6 +32,7 @@ model GeneratedImage {
   color         String?
   resolution    String
   guidance      Float
+  seed          Int
   imageUrl      String
   createdAt     DateTime @default(now())
   user          User     @relation(fields: [userId], references: [id])

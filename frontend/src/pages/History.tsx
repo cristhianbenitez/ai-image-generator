@@ -76,6 +76,12 @@ export const History = () => {
                   </h3>
                   <p className="text-gray">{image.guidance}</p>
                 </div>
+                <div>
+                  <h3 className="text-label font-semibold mb-2">
+                    Seed
+                  </h3>
+                  <p className="text-gray">{image?.seed}</p>
+                </div>
               </div>
               <div className="mt-auto">
                 <p className="text-small text-gray">

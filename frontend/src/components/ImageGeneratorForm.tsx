@@ -26,6 +26,7 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
     color: '',
     resolution: '1024 × 1024 (1:1)',
     guidance: 7.0,
+    seed: Math.floor(Math.random() * 2147483647),
   };
 
   const [formData, setFormData] = useState<FormData>(defaultFormData);
