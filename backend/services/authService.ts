@@ -26,6 +26,7 @@ export class AuthService {
       email: primaryEmail,
       name: userInfo.name || userInfo.login,
       githubId: userInfo.id.toString(),
+      avatar: userInfo.avatar_url,
     });
 
     return {
@@ -67,6 +68,7 @@ export class AuthService {
     email: string;
     name: string;
     githubId: string;
+    avatar: string;
   }) {
     let user = await prisma.user.findUnique({
       where: { githubId: userData.githubId },
@@ -75,6 +77,11 @@ export class AuthService {
     if (!user) {
       user = await prisma.user.create({
         data: userData,
+      });
+    } else {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { avatar: userData.avatar }
       });
     }
 

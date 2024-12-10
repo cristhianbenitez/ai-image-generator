@@ -6,6 +6,7 @@ const router = new Router();
 
 router
   .post("/api/images", (ctx) => imageController.saveImage(ctx))
+  .get("/api/images", (ctx) => imageController.getAllImages(ctx))
   .get("/api/users/:userId/images", (ctx) => imageController.getUserImages(ctx));
 
-export default router; 
+export default router;

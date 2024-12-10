@@ -75,4 +75,19 @@ export class ImageController {
       }
     }
   }
+
+  async getAllImages(context: Context) {
+    try {
+      const images = await imageService.getAllImages();
+      context.response.body = images;
+    } catch (error) {
+      if (error instanceof AppError) {
+        context.response.status = error.status;
+        context.response.body = { error: error.message };
+      } else {
+        context.response.status = 500;
+        context.response.body = { error: 'Internal server error' };
+      }
+    }
+  }
 }

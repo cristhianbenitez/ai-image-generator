@@ -18,7 +18,7 @@ export const UserPostCard = ({
     <article className="w-full max-w-[248px] mb-6 break-inside-avoid">
       <header className="w-full rounded-lg overflow-hidden p-1 bg-darkAlt ">
         {!imageLoaded && (
-          <div className="w-[300px] h-[300px] bg-darkAlt animate-pulse" />
+          <div className="w-full aspect-square bg-darkAlt2 animate-pulse rounded-lg" />
         )}
         <img
           src={image}
@@ -37,7 +37,7 @@ export const UserPostCard = ({
           <p className="text-label font-normal">{name}</p>
         </div>
         <button
-          className={`w-[1.75rem] h-[1.75rem] flex items-center justify-center rounded-lg cursor-pointer transition-colors duration-200 ease-in-out bg-darkAlt hover:bg-darkAlt2 focus:bg-darkAlt2 ${
+          className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors duration-200 ease-in-out hover:bg-darkAlt2 ${
             isBookmarked ? 'bg-purple' : 'bg-darkAlt'
           }`}
         >

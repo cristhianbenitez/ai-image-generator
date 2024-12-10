@@ -16,16 +16,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Dinosaur {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique
-  description String
-}
 model User {
   id             Int              @id @default(autoincrement())
   name           String?
   email          String           @unique
   githubId       String           @unique
+  avatar         String?
   generatedImages GeneratedImage[]
 }
 

@@ -51,9 +51,35 @@ export class ImageService {
       return await prisma.generatedImage.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              name: true,
+              avatar: true
+            }
+          }
+        }
       });
     } catch (error) {
       throw new AppError(`Failed to fetch user images: ${error.message}`);
+    }
+  }
+
+  async getAllImages() {
+    try {
+      return await prisma.generatedImage.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              name: true,
+              avatar: true
+            }
+          }
+        }
+      });
+    } catch (error) {
+      throw new AppError(`Failed to fetch images: ${error.message}`);
     }
   }
 }
