@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from '@config/api';
-import { useAuth } from '@hooks';
+import { useAuth, useData } from '@hooks';
 import React, { createContext, useState } from 'react';
 
 import type { FormData, GenerationStatus, ImageContextType } from '@types';
@@ -121,6 +121,7 @@ export const ImageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { user } = useAuth();
+  const { refetchData } = useData();
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [status, setStatus] = useState<GenerationStatus>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -145,6 +146,7 @@ export const ImageProvider: React.FC<{ children: React.ReactNode }> = ({
             formData,
             base64Image,
           );
+          await refetchData();
         } catch (saveError) {
           console.error('Failed to save image:', saveError);
           // Don't set error state here as the image generation was successful
