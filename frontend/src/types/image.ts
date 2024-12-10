@@ -6,6 +6,8 @@ export interface ImageContextType {
   generatedImage: string | null;
   status: GenerationStatus;
   error: string | null;
+  formData: FormData;
+  setFormData: (data: FormData) => void;
   generateImage: (formData: FormData) => Promise<void>;
   resetImage: () => void;
 }

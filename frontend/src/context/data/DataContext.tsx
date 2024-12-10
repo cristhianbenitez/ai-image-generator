@@ -3,11 +3,11 @@ import { useAuth } from '@hooks';
 import type { DataContextType, GeneratedImage } from '@types';
 import { createContext, useEffect, useState } from 'react';
 
-export const DataContext = createContext<DataContextType | undefined>(
-  undefined,
-);
+const DataContext = createContext<DataContextType | undefined>(undefined);
 
-export const DataProvider = ({ children }: { children: React.ReactNode }) => {
+export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { user } = useAuth();
   const [allImages, setAllImages] = useState<GeneratedImage[]>([]);
   const [userImages, setUserImages] = useState<GeneratedImage[]>([]);
@@ -17,7 +17,6 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      // Fetch all images
       const allImagesResponse = await fetch(API_ENDPOINTS.IMAGES, {
         credentials: 'include',
       });
@@ -29,7 +28,6 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
       const allImagesData = await allImagesResponse.json();
       setAllImages(allImagesData);
 
-      // Fetch user images if user is logged in
       if (user) {
         const userImagesResponse = await fetch(
           API_ENDPOINTS.USER_IMAGES(parseInt(user.id)),
@@ -52,7 +50,6 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Initial fetch
   useEffect(() => {
     fetchAllData();
   }, [user?.id]);
@@ -67,3 +64,5 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };
+
+export { DataContext };

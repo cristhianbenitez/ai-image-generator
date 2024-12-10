@@ -30,7 +30,7 @@ export const Feed = () => {
   }
 
   return (
-    <section className="w-full">
+    <section className="">
       <form
         role="search-bar"
         className="w-full px-4 py-2 h-[48px] max-w-lg flex items-center gap-2 bg-darkAlt rounded-lg text-white font-normal mb-10"
@@ -47,7 +47,7 @@ export const Feed = () => {
 
       <Masonry
         breakpointCols={breakpointColumns}
-        className="flex w-full max-w-[1064px] pb-10"
+        className="flex w-full max-w-[1064px] gap-6 pb-10"
         columnClassName="flex flex-col gap-6"
       >
         {allImages.map(image => (

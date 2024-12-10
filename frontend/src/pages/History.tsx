@@ -36,6 +36,7 @@ export const History = () => {
             key={image.id}
             className="flex gap-10 w-full border-b border-darkAlt pb-10"
           >
+            {/* Image */}
             <div className="w-[327px] h-auto flex-shrink-0 bg-darkAlt rounded-lg p-1">
               <img
                 src={image.imageUrl}
@@ -43,20 +44,21 @@ export const History = () => {
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
-            <div className="flex flex-col gap-8 flex-grow">
+            {/* Details */}
+            <div className="flex flex-col gap-6 flex-grow">
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-gray text-sm mb-2">Prompt details</h3>
+                  <h3 className="text-gray text-label mb-2">Prompt details</h3>
                   <p className="text-white">{image.prompt}</p>
                 </div>
                 <div>
-                  <h3 className="text-gray text-sm mb-2">Negative prompt</h3>
+                  <h3 className="text-gray text-label mb-2">Negative prompt</h3>
                   <p className="text-gray">{image.negativePrompt || 'Null'}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-gray text-sm mb-2">Created on</h3>
+                  <h3 className="text-gray text-label mb-2">Created on</h3>
                   <p className="text-white">
                     {new Date(image.createdAt).toLocaleDateString('en-US', {
                       day: 'numeric',
@@ -66,12 +68,14 @@ export const History = () => {
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-gray text-sm mb-2">Input Resolution</h3>
+                  <h3 className="text-gray text-label mb-2">
+                    Input Resolution
+                  </h3>
                   <p className="text-white">{image.resolution}</p>
                 </div>
               </div>
               <div>
-                <h3 className="text-gray text-sm mb-2">Seed</h3>
+                <h3 className="text-gray text-label mb-2">Seed</h3>
                 <p className="text-white">{image.seed}</p>
               </div>
             </div>
