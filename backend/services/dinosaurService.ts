@@ -1,5 +1,5 @@
-import { PrismaClient } from "../generated/client/deno/edge.ts";
-import { env } from "../config/env.ts";
+import { env } from '../config/env.ts';
+import { PrismaClient } from '../generated/client/deno/edge.ts';
 
 const prisma = new PrismaClient({
   datasources: { db: { url: env.DATABASE_URL } },
@@ -25,4 +25,4 @@ export class DinosaurService {
       where: { id },
     });
   }
-} 
+}

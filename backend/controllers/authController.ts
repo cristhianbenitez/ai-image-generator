@@ -1,5 +1,6 @@
 import { Context } from "https://deno.land/x/oak@v11.1.0/mod.ts";
 import { AuthService } from "../services/authService.ts";
+import { env } from "../config/env.ts";
 
 const authService = new AuthService();
 
@@ -20,13 +21,11 @@ export class AuthController {
 
     try {
       const authResult = await authService.handleGithubCallback(url.toString());
-
-      // Redirect to frontend with user data as URL parameters
       const userData = encodeURIComponent(JSON.stringify(authResult));
-      context.response.redirect(`http://localhost:5173/auth/callback?data=${userData}`);
+      context.response.redirect(`${env.FRONTEND_URL}/auth/callback?data=${userData}`);
     } catch (error) {
       console.error("Error during GitHub authentication:", error);
-      context.response.redirect('http://localhost:5173/login?error=auth_failed');
+      context.response.redirect(`${env.FRONTEND_URL}/login?error=auth_failed`);
     }
   }
 }

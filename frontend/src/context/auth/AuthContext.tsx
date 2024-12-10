@@ -24,8 +24,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(false);
   }, []);
 
+  const getBackendUrl = () => {
+    if (import.meta.env.VERCEL_URL) {
+      return `https://${import.meta.env.VERCEL_URL}`;
+    }
+    return 'http://localhost:8000';
+  };
+
   const login = () => {
-    window.location.href = 'http://localhost:8000/auth/github';
+    window.location.href = `${getBackendUrl()}/auth/github`;
   };
 
   const logout = () => {
