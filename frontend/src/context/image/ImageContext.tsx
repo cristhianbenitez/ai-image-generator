@@ -31,12 +31,10 @@ const imageUtils = {
   },
 
   parseResolution: (resolution: string): { width: number; height: number } => {
-    const [width, heightWithRatio] = resolution.split('×');
-    const height = heightWithRatio.split(' ')[0];
-    return {
-      width: parseInt(width.trim()),
-      height: parseInt(height.trim()),
-    };
+    const [width, height] = resolution
+      .split('×')
+      .map(str => parseInt(str.trim()));
+    return { width, height };
   },
 };
 
@@ -59,8 +57,8 @@ const apiService = {
         prompt: coloredPrompt,
         negative_prompt: formData.negativePrompt,
         guidance_scale: formData.guidance,
-        width,
-        height,
+        img_width: width,
+        img_height: height,
       }),
     });
 

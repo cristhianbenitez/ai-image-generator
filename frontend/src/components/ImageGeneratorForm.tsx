@@ -33,7 +33,6 @@ export const ImageGeneratorForm = ({ onSubmit }: ImageGeneratorFormProps) => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
-    setFormData(defaultFormData);
   };
 
   return (
