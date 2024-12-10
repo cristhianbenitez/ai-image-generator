@@ -23,7 +23,7 @@ model Dinosaur {
 
 model User {
   id       Int     @id @default(autoincrement())
-  email    String  @unique
   name     String?
+  email    String  @unique
   githubId String  @unique
 }

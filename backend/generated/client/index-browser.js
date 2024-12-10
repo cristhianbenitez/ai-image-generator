@@ -125,8 +125,8 @@ exports.Prisma.DinosaurScalarFieldEnum = {
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  email: 'email',
   name: 'name',
+  email: 'email',
   githubId: 'githubId'
 };
 
