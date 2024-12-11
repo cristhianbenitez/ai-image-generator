@@ -16,28 +16,15 @@ export class AuthService {
     const userInfo = await this.getGithubUserInfo(token.accessToken);
     const emails = await this.getGithubUserEmails(token.accessToken);
 
-    const primaryEmail =
-      emails.find((email: any) => email.primary)?.email || emails[0]?.email;
-    if (!primaryEmail) {
-      throw new Error('No email associated with GitHub account');
-    }
+
 
     const user = await this.findOrCreateUser({
-      email: primaryEmail,
       name: userInfo.name || userInfo.login,
       githubId: userInfo.id.toString(),
       avatar: userInfo.avatar_url,
     });
 
-    return {
-      user,
-      githubUser: {
-        id: userInfo.id,
-        name: userInfo.name || userInfo.login,
-        email: userInfo.email,
-        avatar_url: userInfo.avatar_url,
-      },
-    };
+    return user;
   }
 
   private async getGithubUserInfo(accessToken: string) {
@@ -65,7 +52,6 @@ export class AuthService {
   }
 
   private async findOrCreateUser(userData: {
-    email: string;
     name: string;
     githubId: string;
     avatar: string;
@@ -81,7 +67,7 @@ export class AuthService {
     } else {
       user = await prisma.user.update({
         where: { id: user.id },
-        data: { avatar: userData.avatar }
+        data: { avatar: userData.avatar },
       });
     }
 

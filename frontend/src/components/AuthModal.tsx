@@ -1,21 +1,22 @@
-import { useAuth } from '@hooks';
+import { useAppDispatch } from '@store/hooks';
+import { closeAuthModal, login } from '@store/slices/authSlice';
 import React from 'react';
 
 interface AuthModalProps {
   isOpen: boolean;
-  onClose: () => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen }) => {
   const [isLoading, setIsLoading] = React.useState(false);
-  const { login } = useAuth();
+  const dispatch = useAppDispatch();
+  const closeModal = () => dispatch(closeAuthModal());
 
   if (!isOpen) return null;
 
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      await login();
+      dispatch(login());
       // Note: We don't need to call onClose here as the page will redirect
     } catch (error) {
       console.error('Login error:', error);
@@ -34,7 +35,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Sign In</h2>
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="text-gray-400 hover:text-gray-200"
           >
             ✕

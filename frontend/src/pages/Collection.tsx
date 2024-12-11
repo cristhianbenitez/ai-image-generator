@@ -1,92 +1,44 @@
-import { UserPostCard } from '@/components/UserPostCard';
-import type { GeneratedImage } from '@/types/data';
-import { API_ENDPOINTS } from '@config/api';
-import { useAuth } from '@hooks';
-import { useEffect, useState } from 'react';
+import { UserPostCard } from '@components';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { fetchCollection, removeImage } from '@store/slices/collectionSlice';
+import { useEffect } from 'react';
 
-interface CollectionImage extends GeneratedImage {
-  user: {
-    name: string;
-    avatar: string;
-  };
-}
+const LoadingSpinner = () => (
+  <div className="flex justify-center items-center w-full h-screen">
+    <div className="w-16 h-16 border-t-4 border-purple border-solid rounded-full animate-spin" />
+  </div>
+);
 
-interface CollectionData {
-  id: number;
-  userId: number;
-  images: CollectionImage[];
-}
+const ErrorMessage = ({ message }: { message: string }) => (
+  <div className="text-red text-center">
+    <p>Error: {message}</p>
+  </div>
+);
+
+const NoAuthMessage = () => (
+  <div className="flex flex-col items-center justify-center h-full">
+    <p className="text-gray">Please sign in to view your collection</p>
+  </div>
+);
 
 export const Collection = () => {
-  const [collection, setCollection] = useState<CollectionData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(state => state.auth.user);
+  const { collection, loading, error } = useAppSelector(state => state.collection);
 
   useEffect(() => {
-    const fetchCollection = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `${API_ENDPOINTS.COLLECTIONS}/${user.id}`,
-          {
-            credentials: 'include',
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch collection');
-        }
-
-        const data = await response.json();
-        // Since we get an array from findMany, take the first item
-        setCollection(data[0] || { id: 0, userId: user.id, images: [] });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load collection');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCollection();
-  }, [user]);
+    if (user) {
+      dispatch(fetchCollection(user.id));
+    }
+  }, [dispatch, user]);
 
   const handleRemoveImage = (imageId: number) => {
-    if (!collection) return;
-
-    setCollection({
-      ...collection,
-      images: collection.images.filter(img => img.id !== imageId),
-    });
+    dispatch(removeImage(imageId));
   };
 
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <p className="text-gray">Please sign in to view your collection</p>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        <div className="w-16 h-16 border-t-4 border-purple border-solid rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-red text-center">
-        <p>Error: {error}</p>
-      </div>
-    );
-  }
+  if (!user) return <NoAuthMessage />;
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
     <section className="flex flex-col gap-8">
@@ -102,11 +54,12 @@ export const Collection = () => {
               avatar={
                 image.user.avatar ||
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  image.user.name,
+                  image.user.name
                 )}`
               }
               isBookmarked={true}
               onRemove={() => handleRemoveImage(image.id)}
+              variant="collection"
             />
           ))}
         </div>

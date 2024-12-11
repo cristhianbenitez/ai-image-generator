@@ -1,4 +1,4 @@
-import { COLORS, RESOLUTIONS } from '@constants/image';
+import { COLORS, RESOLUTIONS } from '@constants';
 
 export type GenerationStatus = 'idle' | 'loading' | 'success' | 'error';
 

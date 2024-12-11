@@ -1,22 +1,23 @@
 import DefaultImage from '@assets/images/box-shapes.png';
 import { ImageGeneratorForm, ImageModal } from '@components';
-import { useImage } from '@hooks';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { generateImage, setFormData } from '@store/slices/imageSlice';
 import { FormEvent, useState } from 'react';
 
 export const Home = () => {
-  const {
-    generatedImage,
-    status,
-    error,
-    generateImage,
-    formData,
-    setFormData,
-  } = useImage();
+  const dispatch = useAppDispatch();
+  const { generatedImage, status, error, formData } = useAppSelector(
+    state => state.image
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    generateImage(formData);
+    dispatch(generateImage(formData));
+  };
+
+  const handleFormChange = (newFormData: typeof formData) => {
+    dispatch(setFormData(newFormData));
   };
 
   return (
@@ -24,7 +25,7 @@ export const Home = () => {
       <div className="w-full mx-[72px] my-[52px] flex justify-center gap-[30px] ">
         <ImageGeneratorForm
           formData={formData}
-          onChange={setFormData}
+          onChange={handleFormChange}
           onSubmit={handleSubmit}
         />
 

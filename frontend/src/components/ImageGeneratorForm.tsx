@@ -5,7 +5,7 @@ import {
   COLORSHEX,
   GUIDANCE_SCALE,
   RESOLUTIONS,
-} from '@constants/image';
+} from '@constants';
 import { useAutoResize } from '@hooks';
 import type { FormData } from '@types';
 import { FormEvent, useRef } from 'react';

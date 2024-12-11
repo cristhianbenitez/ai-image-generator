@@ -1,6 +1,7 @@
 import SearchIcon from '@assets/icons/search.svg';
 import { UserPostCard } from '@components';
 import { useData } from '@hooks';
+import { useCallback } from 'react';
 import Masonry from 'react-masonry-css';
 
 const breakpointColumns = {
@@ -10,24 +11,27 @@ const breakpointColumns = {
   500: 1,
 };
 
+const LoadingSpinner = () => (
+  <div className="flex justify-center items-center w-full h-screen">
+    <div className="w-16 h-16 border-t-4 border-purple border-solid rounded-full animate-spin" />
+  </div>
+);
+
+const ErrorMessage = ({ message }: { message: string }) => (
+  <div className="text-red text-center">
+    <p>Error: {message}</p>
+  </div>
+);
+
 export const Feed = () => {
   const { allImages, loading, error, refetchData } = useData();
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        <div className="w-16 h-16 border-t-4 border-purple border-solid rounded-full animate-spin" />
-      </div>
-    );
-  }
+  const handleBookmarkChange = useCallback(() => {
+    refetchData();
+  }, [refetchData]);
 
-  if (error) {
-    return (
-      <div className="text-red text-center">
-        <p>Error: {error}</p>
-      </div>
-    );
-  }
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
     <section className="">
@@ -63,7 +67,8 @@ export const Feed = () => {
               )}`
             }
             isBookmarked={image.isBookmarked}
-            onBookmarkChange={refetchData}
+            onBookmarkChange={handleBookmarkChange}
+            variant="feed"
           />
         ))}
       </Masonry>

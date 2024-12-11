@@ -1,11 +1,28 @@
-// Custom hook to use the data context
-import { DataContext } from '@context';
-import { useContext } from 'react';
+import type { RootState } from '@store';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { fetchAllData } from '@store/slices/dataSlice';
+import { useEffect } from 'react';
 
 export const useData = () => {
-  const context = useContext(DataContext);
-  if (context === undefined) {
-    throw new Error('useData must be used within a DataProvider');
-  }
-  return context;
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state: RootState) => state.auth);
+  const { allImages, userImages, loading, error } = useAppSelector(
+    (state: RootState) => state.data,
+  );
+
+  useEffect(() => {
+    dispatch(fetchAllData(user?.id));
+  }, [dispatch, user?.id]);
+
+  const refetchData = () => {
+    dispatch(fetchAllData(user?.id));
+  };
+
+  return {
+    allImages,
+    userImages,
+    loading,
+    error,
+    refetchData,
+  };
 };

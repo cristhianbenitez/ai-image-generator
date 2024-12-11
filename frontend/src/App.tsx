@@ -1,12 +1,11 @@
 import { AuthModal, Layout } from '@components';
 import { AuthCallback, Collection, Feed, History, Home } from '@pages';
 
-import { ContextProvider } from '@context';
-import { useAuth } from '@hooks';
+import { useAppSelector } from '@store/hooks';
 import { Route, Routes } from 'react-router-dom';
 
-function AppContent() {
-  const { isAuthModalOpen, closeAuthModal } = useAuth();
+function App() {
+  const isAuthModalOpen = useAppSelector(state => state.auth.isAuthModalOpen);
 
   return (
     <Layout>
@@ -16,22 +15,10 @@ function AppContent() {
         <Route path="/collection" element={<Collection />} />
         <Route path="/history" element={<History />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route
-          path="/login"
-          element={<AuthModal isOpen={true} onClose={closeAuthModal} />}
-        />
+        <Route path="/login" element={<AuthModal isOpen={true} />} />
       </Routes>
-      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
+      <AuthModal isOpen={isAuthModalOpen} />
     </Layout>
-  );
-}
-
-// Wrapper component that provides context
-function App() {
-  return (
-    <ContextProvider>
-      <AppContent />
-    </ContextProvider>
   );
 }
 

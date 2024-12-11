@@ -14,10 +14,10 @@ export default defineConfig({
       '@hooks': path.resolve('.', './src/hooks'),
       '@constants': path.resolve('.', './src/constants'),
       '@config': path.resolve('.', './src/config'),
-      '@context': path.resolve('.', './src/context'),
       '@utils': path.resolve('.', './src/utils'),
       '@types': path.resolve('.', './src/types'),
       '@services': path.resolve('.', './src/services'),
+      '@store': path.resolve('.', './src/store'),
     },
   },
 });
