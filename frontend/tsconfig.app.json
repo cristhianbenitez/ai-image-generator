@@ -27,11 +27,11 @@
       "@hooks": ["hooks"],
       "@context": ["context"],
       "@types": ["types"],
+      "@services": ["services"],
       // not a lot of files in these folders so we can use the wildcard
       "@constants/*": ["constants/*"],
       "@config/*": ["config/*"],
-      "@utils/*": ["utils/*"],
-      "@services/*": ["services/*"]
+      "@utils/*": ["utils/*"]
     }
   },
   "include": ["src"]

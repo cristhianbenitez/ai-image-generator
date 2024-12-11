@@ -78,8 +78,4 @@ export const imageService = {
       throw error;
     }
   },
-
-  saveImageToCollection: async (): Promise<void> => {
-    // TODO: Implement this
-  },
 };

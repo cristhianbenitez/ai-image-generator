@@ -1,18 +1,46 @@
 import BookmarkIcon from '@assets/icons/bookmark.svg';
+import { useAuth } from '@hooks';
+import { collectionService } from '@services';
 import { useState } from 'react';
 
 export const UserPostCard = ({
+  id,
   name,
   image,
   avatar,
-  isBookmarked,
+  isBookmarked: initialIsBookmarked,
+  onRemove,
 }: {
+  id: number;
   name: string;
   image: string;
   avatar: string;
   isBookmarked: boolean;
+  onRemove?: () => void;
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+
+  const handleBookmark = async () => {
+    if (!user || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      if (isBookmarked && onRemove) {
+        await collectionService.removeFromCollection(parseInt(user.id), id);
+        onRemove();
+      } else {
+        await collectionService.saveToCollection(parseInt(user.id), id);
+        setIsBookmarked(true);
+      }
+    } catch (error) {
+      console.error('Failed to handle bookmark:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <article className="w-full max-w-[248px] break-inside-avoid">
@@ -37,9 +65,12 @@ export const UserPostCard = ({
           <p className="text-label font-normal">{name}</p>
         </div>
         <button
-          className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors duration-200 ease-in-out hover:bg-darkAlt2 ${
-            isBookmarked ? 'bg-purple' : 'bg-darkAlt'
-          }`}
+          onClick={handleBookmark}
+          disabled={isLoading || !user}
+          className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors duration-200 ease-in-out
+            ${isBookmarked ? 'bg-purple' : 'bg-darkAlt hover:bg-darkAlt2'}
+            ${!user ? 'opacity-50 cursor-not-allowed' : ''}
+            ${isLoading ? 'animate-pulse' : ''}`}
         >
           <img src={BookmarkIcon} alt="Bookmark icon" />
         </button>

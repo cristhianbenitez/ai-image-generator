@@ -11,7 +11,7 @@ const breakpointColumns = {
 };
 
 export const Feed = () => {
-  const { allImages, loading, error } = useData();
+  const { allImages, loading, error, refetchData } = useData();
 
   if (loading) {
     return (
@@ -53,6 +53,7 @@ export const Feed = () => {
         {allImages.map(image => (
           <UserPostCard
             key={image.id}
+            id={image.id}
             name={image.user.name}
             image={image.imageUrl}
             avatar={
@@ -61,7 +62,8 @@ export const Feed = () => {
                 image.user.name,
               )}`
             }
-            isBookmarked={false}
+            isBookmarked={image.isBookmarked}
+            onBookmarkChange={refetchData}
           />
         ))}
       </Masonry>

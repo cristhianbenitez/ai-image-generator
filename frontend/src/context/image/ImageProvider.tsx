@@ -1,10 +1,9 @@
 import { useAuth, useData } from '@hooks';
-import { imageService } from '@services/imageService';
-import type { FormData, GenerationStatus, ImageContextType } from '@types';
+import { imageService } from '@services';
+import type { FormData, GenerationStatus } from '@types';
 import { imageUtils } from '@utils/imageUtils';
 import React, { useState } from 'react';
 import { ImageContext } from './ImageContext';
-
 
 const defaultFormData: FormData = {
   prompt: '',
