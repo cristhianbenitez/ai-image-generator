@@ -1,7 +1,6 @@
-import type { AuthContextType, User } from '@types';
-import React, { createContext, useEffect, useState } from 'react';
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import type { User } from '@types';
+import React, { useEffect, useState } from 'react';
+import { AuthContext } from './AuthContext';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -56,5 +55,3 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-export { AuthContext };

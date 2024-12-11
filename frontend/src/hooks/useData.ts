@@ -1,6 +1,6 @@
 // Custom hook to use the data context
+import { DataContext } from '@context';
 import { useContext } from 'react';
-import { DataContext } from '../context/data/DataContext';
 
 export const useData = () => {
   const context = useContext(DataContext);

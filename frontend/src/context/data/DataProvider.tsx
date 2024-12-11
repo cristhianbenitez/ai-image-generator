@@ -1,9 +1,8 @@
 import { API_ENDPOINTS } from '@config/api';
 import { useAuth } from '@hooks';
-import type { DataContextType, GeneratedImage } from '@types';
-import { createContext, useEffect, useState } from 'react';
-
-const DataContext = createContext<DataContextType | undefined>(undefined);
+import type { GeneratedImage } from '@types';
+import React, { useEffect, useState } from 'react';
+import { DataContext } from './DataContext';
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -64,5 +63,3 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };
-
-export { DataContext };

@@ -2,9 +2,9 @@ import { useAuth, useData } from '@hooks';
 import { imageService } from '@services/imageService';
 import type { FormData, GenerationStatus, ImageContextType } from '@types';
 import { imageUtils } from '@utils/imageUtils';
-import React, { createContext, useState } from 'react';
+import React, { useState } from 'react';
+import { ImageContext } from './ImageContext';
 
-const ImageContext = createContext<ImageContextType | undefined>(undefined);
 
 const defaultFormData: FormData = {
   prompt: '',
@@ -15,7 +15,7 @@ const defaultFormData: FormData = {
   seed: Math.floor(Math.random() * 2147483647),
 };
 
-const ImageProvider: React.FC<{ children: React.ReactNode }> = ({
+export const ImageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { user } = useAuth();
@@ -77,5 +77,3 @@ const ImageProvider: React.FC<{ children: React.ReactNode }> = ({
     <ImageContext.Provider value={value}>{children}</ImageContext.Provider>
   );
 };
-
-export { ImageContext, ImageProvider };
