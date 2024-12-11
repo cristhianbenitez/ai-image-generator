@@ -2,6 +2,7 @@ import { Application, Router } from "https://deno.land/x/oak@v11.1.0/mod.ts";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import authRoutes from "./routes/authRoutes.ts";
 import imageRoutes from "./routes/imageRoutes.ts";
+import collectionRoutes from "./routes/collectionRoutes.ts";
 
 const app = new Application();
 
@@ -26,6 +27,8 @@ app.use(authRoutes.routes());
 app.use(authRoutes.allowedMethods());
 app.use(imageRoutes.routes());
 app.use(imageRoutes.allowedMethods());
+app.use(collectionRoutes.routes());
+app.use(collectionRoutes.allowedMethods());
 
 // Root route
 app.use((context) => {

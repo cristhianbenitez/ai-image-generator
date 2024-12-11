@@ -1,21 +1,49 @@
-import { useAuth } from '@hooks';
+import { useAppDispatch } from '@store/hooks';
+import { setUserAndFetchData, closeAuthModal } from '@store/slices/authSlice';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const AuthCallback = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const dispatch = useAppDispatch();
   const dataProcessed = useRef(false);
 
   useEffect(() => {
-    const handleCallback = async () => {
-      // If we've already processed the data in this session, just navigate
-      if (sessionStorage.getItem('auth_processed')) {
-        navigate('/', { replace: true });
+    const redirectToHome = () => navigate('/', { replace: true });
+    const redirectToLogin = () => navigate('/login');
+
+    const processUserData = (rawUserData: string) => {
+      try {
+        const data = JSON.parse(decodeURIComponent(rawUserData));
+
+        if (!data) {
+          throw new Error('No user data received');
+        }
+
+        const userToSet = {
+          id: data.id.toString(),
+          name: data.name,
+          avatar: data.avatar,
+        };
+
+        dispatch(setUserAndFetchData(userToSet));
+        dispatch(closeAuthModal());
+        dataProcessed.current = true;
+        redirectToHome();
+      } catch (error) {
+        console.error('Error processing user data:', error);
+        redirectToLogin();
+      }
+    };
+
+    const handleCallback = () => {
+      // Check if auth was already processed
+      if (localStorage.getItem('auth_processed')) {
+        redirectToHome();
         return;
       }
 
-      // If we've already processed the data in this component instance, skip
+      // Skip if we've already processed data in this instance
       if (dataProcessed.current) {
         return;
       }
@@ -24,45 +52,24 @@ export const AuthCallback = () => {
       const userData = searchParams.get('data');
 
       if (!userData) {
-        // Only navigate to login if we haven't processed data yet
-        if (!sessionStorage.getItem('auth_processed')) {
-          navigate('/login');
+        // Only redirect to login if auth hasn't been processed
+        if (!localStorage.getItem('auth_processed')) {
+          redirectToLogin();
         }
         return;
       }
 
-      try {
-        const data = JSON.parse(decodeURIComponent(userData));
-
-        if (data.user) {
-          const userToSet = {
-            id: data.user.id.toString(),
-            name: data.user.name,
-            email: data.user.email,
-            avatar: data.githubUser.avatar_url,
-          };
-
-          dataProcessed.current = true;
-          setUser(userToSet);
-          localStorage.setItem('user', JSON.stringify(userToSet));
-          sessionStorage.setItem('auth_processed', 'true');
-          navigate('/', { replace: true });
-        }
-      } catch (error) {
-        console.error('Error processing user data:', error);
-        navigate('/login');
-      }
+      processUserData(userData);
     };
 
     handleCallback();
 
     return () => {
-      // Only remove the session storage item if we're actually leaving the auth flow
       if (!dataProcessed.current) {
-        sessionStorage.removeItem('auth_processed');
+        localStorage.removeItem('auth_processed');
       }
     };
-  }, [navigate, setUser]);
+  }, [dispatch, navigate]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-darkBg">

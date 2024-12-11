@@ -57,19 +57,19 @@ export class ImageService {
           user: {
             select: {
               name: true,
-              avatar: true
-            }
-          }
-        }
+              avatar: true,
+            },
+          },
+        },
       });
     } catch (error) {
       throw new AppError(`Failed to fetch user images: ${error.message}`);
     }
   }
 
-  async getAllImages() {
+  async getAllImages(userId?: number) {
     try {
-      return await prisma.generatedImage.findMany({
+      const images = await prisma.generatedImage.findMany({
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
@@ -80,6 +80,35 @@ export class ImageService {
           }
         }
       });
+
+      // If no userId provided, return images without bookmark info
+      if (!userId) {
+        return images.map(image => ({
+          ...image,
+          isBookmarked: false
+        }));
+      }
+
+      // Get user's collection to check for bookmarked images
+      const userCollection = await prisma.collection.findUnique({
+        where: { userId },
+        include: {
+          images: {
+            select: { id: true }
+          }
+        }
+      });
+
+      // Create a Set of bookmarked image IDs for efficient lookup
+      const bookmarkedImageIds = new Set(
+        userCollection?.images.map(img => img.id) || []
+      );
+
+      // Add isBookmarked property to each image
+      return images.map(image => ({
+        ...image,
+        isBookmarked: bookmarkedImageIds.has(image.id)
+      }));
     } catch (error) {
       throw new AppError(`Failed to fetch images: ${error.message}`);
     }

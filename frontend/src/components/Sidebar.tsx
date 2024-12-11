@@ -6,7 +6,8 @@ import SignInIcon from '@assets/icons/signin.svg';
 import SignOutIcon from '@assets/icons/signout.svg';
 import LogoIcon from '@assets/logo.svg';
 
-import { useAuth } from '@hooks';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { logout, openAuthModal } from '@store/slices/authSlice';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -33,7 +34,11 @@ const PATHS = [
 export const Sidebar = () => {
   const [showLogout, setShowLogout] = useState(false);
   const { pathname } = useLocation();
-  const { user, openAuthModal, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(state => state.auth.user);
+
+  const openModal = () => dispatch(openAuthModal());
+  const handleLogout = () => dispatch(logout());
 
   const isInCurrentPathStyle = (path: string) =>
     pathname === path ? 'active-path' : '';
@@ -56,7 +61,7 @@ export const Sidebar = () => {
       </div>
 
       {!user ? (
-        <button className="navigation-button mt-auto" onClick={openAuthModal}>
+        <button className="navigation-button mt-auto" onClick={openModal}>
           <img src={SignInIcon} alt="Sign in icon" />
         </button>
       ) : (
@@ -69,7 +74,7 @@ export const Sidebar = () => {
               onClick={() => setShowLogout(!showLogout)}
             />
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className={`absolute left-full ml-2 px-4 py-2 flex items-center justify-center gap-2 bg-darkAlt2 rounded text-sm text-white transition-opacity duration-200
               ${
                 showLogout ? 'opacity-100' : 'opacity-0'

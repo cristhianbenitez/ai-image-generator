@@ -1,38 +1,22 @@
 import { Context } from 'https://deno.land/x/oak@v11.1.0/mod.ts';
-import { ImageService } from '../services/imageService.ts';
+import { collectionService } from '../services/collectionService.ts';
 import { AppError, ValidationError } from '../types/errors.ts';
 
-const imageService = new ImageService();
-
-interface SaveImageRequest {
-  userId: number;
-  prompt: string;
-  negativePrompt?: string;
-  color?: string;
-  resolution: string;
-  guidance: number;
-  seed: number;
-  imageUrl: string;
-}
-
-export class ImageController {
-  async saveImage(context: Context) {
+export class CollectionController {
+  async saveToCollection(context: Context) {
     try {
-      const body = (await context.request.body('json')
-        .value) as SaveImageRequest;
+      const body = await context.request.body().value;
 
-      // Validate required fields
-      if (!body.prompt || !body.resolution || !body.imageUrl) {
+      if (!body.userId || !body.imageId) {
         throw new ValidationError('Missing required fields');
       }
 
-      // Validate guidance scale
-      if (body.guidance < 1 || body.guidance > 15) {
-        throw new ValidationError('Guidance scale must be between 1 and 15');
-      }
+      const collection = await collectionService.saveToCollection({
+        userId: Number(body.userId),
+        imageId: Number(body.imageId),
+      });
 
-      const savedImage = await imageService.saveGeneratedImage(body);
-      context.response.body = savedImage;
+      context.response.body = collection;
     } catch (error) {
       if (error instanceof AppError) {
         context.response.status = error.status;
@@ -50,7 +34,7 @@ export class ImageController {
     }
   }
 
-  async getUserImages(context: Context) {
+  async getUserCollections(context: Context) {
     try {
       const userId = Number(context.params.userId);
 
@@ -58,8 +42,8 @@ export class ImageController {
         throw new ValidationError('Invalid user ID');
       }
 
-      const images = await imageService.getUserImages(userId);
-      context.response.body = images;
+      const collections = await collectionService.getUserCollections(userId);
+      context.response.body = collections;
     } catch (error) {
       if (error instanceof AppError) {
         context.response.status = error.status;
@@ -77,20 +61,34 @@ export class ImageController {
     }
   }
 
-  async getAllImages(context: Context) {
+  async removeFromCollection(context: Context) {
     try {
-      const userId = context.request.url.searchParams.get('userId');
-      const images = await imageService.getAllImages(
-        userId ? Number(userId) : undefined,
-      );
-      context.response.body = images;
+      const userId = Number(context.params.userId);
+      const imageId = Number(context.params.imageId);
+
+      if (isNaN(userId) || isNaN(imageId)) {
+        throw new ValidationError('Invalid user ID or image ID');
+      }
+
+      const collection = await collectionService.removeFromCollection({
+        userId,
+        imageId,
+      });
+
+      context.response.body = collection;
     } catch (error) {
       if (error instanceof AppError) {
         context.response.status = error.status;
-        context.response.body = { error: error.message };
+        context.response.body = {
+          error: error.message,
+          code: error.code,
+        };
       } else {
         context.response.status = 500;
-        context.response.body = { error: 'Internal server error' };
+        context.response.body = {
+          error: 'Internal server error',
+          code: 'INTERNAL_ERROR',
+        };
       }
     }
   }
