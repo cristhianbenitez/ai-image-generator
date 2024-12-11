@@ -1,5 +1,5 @@
 import SearchIcon from '@assets/icons/search.svg';
-import { UserPostCard } from '@components';
+import { ErrorMessage, LoadingSpinner, UserPostCard } from '@components';
 import { useData } from '@hooks';
 import { useCallback } from 'react';
 import Masonry from 'react-masonry-css';
@@ -10,18 +10,6 @@ const breakpointColumns = {
   700: 2,
   500: 1,
 };
-
-const LoadingSpinner = () => (
-  <div className="flex justify-center items-center w-full h-screen">
-    <div className="w-16 h-16 border-t-4 border-purple border-solid rounded-full animate-spin" />
-  </div>
-);
-
-const ErrorMessage = ({ message }: { message: string }) => (
-  <div className="text-red text-center">
-    <p>Error: {message}</p>
-  </div>
-);
 
 export const Feed = () => {
   const { allImages, loading, error, refetchData } = useData();

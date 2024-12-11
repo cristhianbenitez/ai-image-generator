@@ -1,11 +1,17 @@
-import { AuthModal, Layout } from '@components';
+import { AuthModal, Layout, LoadingSpinner } from '@components';
 import { AuthCallback, Collection, Feed, History, Home } from '@pages';
 
+import { useInitializeData } from '@hooks';
 import { useAppSelector } from '@store/hooks';
 import { Route, Routes } from 'react-router-dom';
 
 function App() {
   const isAuthModalOpen = useAppSelector(state => state.auth.isAuthModalOpen);
+  const { isInitialized } = useInitializeData();
+
+  if (!isInitialized) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Layout>

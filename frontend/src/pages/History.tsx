@@ -1,30 +1,12 @@
+import {
+  EmptyHistory,
+  ErrorMessage,
+  LoadingSpinner,
+  NoAuthMessage,
+} from '@components';
 import { useData } from '@hooks';
 import { useAppSelector } from '@store/hooks';
 import type { GeneratedImage } from '@types';
-
-const LoadingSpinner = () => (
-  <div className="flex justify-center items-center w-full h-full">
-    <div className="w-16 h-16 border-t-4 border-purple border-solid rounded-full animate-spin" />
-  </div>
-);
-
-const ErrorMessage = ({ message }: { message: string }) => (
-  <div className="text-red text-center">
-    <p>Error: {message}</p>
-  </div>
-);
-
-const NoAuthMessage = () => (
-  <div className="flex flex-col items-center justify-center h-full">
-    <p className="text-gray">Please sign in to view your history</p>
-  </div>
-);
-
-const EmptyHistory = () => (
-  <div className="text-center text-gray py-8">
-    <p>No generation history yet</p>
-  </div>
-);
 
 const HistoryItem = ({ image }: { image: GeneratedImage }) => (
   <article className="flex gap-10 w-full border-b border-darkAlt pb-10">

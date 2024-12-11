@@ -16,8 +16,6 @@ export class AuthService {
     const userInfo = await this.getGithubUserInfo(token.accessToken);
     const emails = await this.getGithubUserEmails(token.accessToken);
 
-
-
     const user = await this.findOrCreateUser({
       name: userInfo.name || userInfo.login,
       githubId: userInfo.id.toString(),

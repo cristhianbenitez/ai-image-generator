@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import type { RootState } from '@store';
 import type { GeneratedImage } from '@types';
 import { API_ENDPOINTS } from '@config/api';
 
@@ -7,49 +8,59 @@ interface DataState {
   userImages: GeneratedImage[];
   loading: boolean;
   error: string | null;
+  lastFetched: number | null;
+  isInitialized: boolean;
 }
 
 const initialState: DataState = {
   allImages: [],
   userImages: [],
-  loading: true,
+  loading: false,
   error: null,
+  lastFetched: null,
+  isInitialized: false,
 };
+
+// Cache duration in milliseconds (e.g., 5 minutes)
+const CACHE_DURATION = 5 * 60 * 1000;
 
 export const fetchAllData = createAsyncThunk(
   'data/fetchAllData',
-  async (userId: string | undefined, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
+    const state = getState() as RootState;
+    const { lastFetched } = state.data;
+    const user = state.auth.user;
+
+    // Check if cache is still valid
+    if (lastFetched && Date.now() - lastFetched < CACHE_DURATION) {
+      return null; // Skip fetching if cache is valid
+    }
+
     try {
-      const allImagesResponse = await fetch(API_ENDPOINTS.IMAGES, {
-        credentials: 'include',
-      });
+      const [allImagesResponse, userImagesResponse] = await Promise.all([
+        fetch(API_ENDPOINTS.IMAGES, { credentials: 'include' }),
+        user ? fetch(API_ENDPOINTS.USER_IMAGES(parseInt(user.id)), {
+          credentials: 'include'
+        }) : Promise.resolve(null)
+      ]);
 
       if (!allImagesResponse.ok) {
         throw new Error('Failed to fetch images');
       }
 
-      const allImagesData = await allImagesResponse.json();
+      const allImages = await allImagesResponse.json();
+      const userImages = userImagesResponse ? await userImagesResponse.json() : [];
 
-      if (userId) {
-        const userImagesResponse = await fetch(
-          API_ENDPOINTS.USER_IMAGES(parseInt(userId)),
-          {
-            credentials: 'include',
-          }
-        );
-
-        if (!userImagesResponse.ok) {
-          throw new Error('Failed to fetch user images');
-        }
-
-        const userImagesData = await userImagesResponse.json();
-        return { allImages: allImagesData, userImages: userImagesData };
-      }
-
-      return { allImages: allImagesData, userImages: [] };
+      return { allImages, userImages };
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch data');
     }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { loading } = (getState() as RootState).data;
+      return !loading; // Don't fetch if already loading
+    },
   }
 );
 
@@ -57,9 +68,8 @@ const dataSlice = createSlice({
   name: 'data',
   initialState,
   reducers: {
-    clearData: (state) => {
-      state.allImages = [];
-      state.userImages = [];
+    invalidateCache: (state) => {
+      state.lastFetched = null;
     },
   },
   extraReducers: (builder) => {
@@ -69,17 +79,20 @@ const dataSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAllData.fulfilled, (state, action) => {
+        if (action.payload) { // Only update if new data was fetched
+          state.allImages = action.payload.allImages;
+          state.userImages = action.payload.userImages;
+          state.lastFetched = Date.now();
+        }
         state.loading = false;
-        state.allImages = action.payload.allImages;
-        state.userImages = action.payload.userImages;
-        state.error = null;
+        state.isInitialized = true;
       })
       .addCase(fetchAllData.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || 'Failed to fetch data';
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { clearData } = dataSlice.actions;
+export const { invalidateCache } = dataSlice.actions;
 export default dataSlice.reducer;

@@ -1,19 +1,7 @@
-import { UserPostCard } from '@components';
+import { ErrorMessage, LoadingSpinner, UserPostCard } from '@components';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { fetchCollection, removeImage } from '@store/slices/collectionSlice';
 import { useEffect } from 'react';
-
-const LoadingSpinner = () => (
-  <div className="flex justify-center items-center w-full h-screen">
-    <div className="w-16 h-16 border-t-4 border-purple border-solid rounded-full animate-spin" />
-  </div>
-);
-
-const ErrorMessage = ({ message }: { message: string }) => (
-  <div className="text-red text-center">
-    <p>Error: {message}</p>
-  </div>
-);
 
 const NoAuthMessage = () => (
   <div className="flex flex-col items-center justify-center h-full">
@@ -24,7 +12,9 @@ const NoAuthMessage = () => (
 export const Collection = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(state => state.auth.user);
-  const { collection, loading, error } = useAppSelector(state => state.collection);
+  const { collection, loading, error } = useAppSelector(
+    state => state.collection,
+  );
 
   useEffect(() => {
     if (user) {
@@ -54,7 +44,7 @@ export const Collection = () => {
               avatar={
                 image.user.avatar ||
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  image.user.name
+                  image.user.name,
                 )}`
               }
               isBookmarked={true}

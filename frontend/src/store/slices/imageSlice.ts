@@ -4,7 +4,7 @@ import { imageService } from '@services';
 import type { RootState } from '@store';
 import type { FormData, GenerationStatus } from '@types';
 import { imageUtils } from '@utils/imageUtils';
-import { fetchAllData } from './dataSlice';
+import { fetchAllData, invalidateCache } from './dataSlice';
 
 interface ImageState {
   generatedImage: string | null;
@@ -47,8 +47,9 @@ export const generateImage = createAsyncThunk(
           formData,
           base64Image,
         );
-        // Refetch data after saving
-        dispatch(fetchAllData(user.id));
+        // Invalidate cache and refetch data
+        dispatch(invalidateCache());
+        dispatch(fetchAllData());
       } catch (saveError) {
         console.error('Failed to save image:', saveError);
       }
