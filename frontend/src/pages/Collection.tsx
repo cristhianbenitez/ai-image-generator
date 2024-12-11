@@ -36,40 +36,40 @@ export const Collection = () => {
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <section className="flex flex-col gap-8">
-      <h2 className="text-title text-heading font-semibold">My Collection</h2>
-
+    <section className="w-full max-w-[1064px] mx-auto">
+      <h2 className="text-title text-heading font-semibold mb-8">
+        My Collection
+      </h2>
 
       {collection && collection.images.length > 0 ? (
-     <Suspense fallback={<LoadingSpinner />}>
-        <Masonry
-          breakpointCols={BREAKPOINT_COLUMNS}
-          className="flex w-full gap-6 pb-10"
-          columnClassName="flex flex-col gap-6"
-        >
-          {collection.images.map(image => (
-            <UserPostCard
-              key={image.id}
-              id={image.id}
-              name={image.user.name}
-              image={image.imageUrl}
-              avatar={
-                image.user.avatar ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  image.user.name,
-                )}`
-              }
-              isBookmarked={true}
-              onRemove={() => handleRemoveImage(image.id)}
-              variant="collection"
-            />
-          ))}
-        </Masonry>
-      </Suspense>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Masonry
+            breakpointCols={BREAKPOINT_COLUMNS}
+            className="flex w-full gap-6 pb-10"
+            columnClassName="flex flex-col gap-6"
+          >
+            {collection.images.map(image => (
+              <UserPostCard
+                key={image.id}
+                id={image.id}
+                name={image.user.name}
+                image={image.imageUrl}
+                avatar={
+                  image.user.avatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    image.user.name,
+                  )}`
+                }
+                isBookmarked={true}
+                onRemove={() => handleRemoveImage(image.id)}
+                variant="collection"
+              />
+            ))}
+          </Masonry>
+        </Suspense>
       ) : (
         <p className="text-center text-gray-400">No images in collection yet</p>
       )}
-
     </section>
   );
 };

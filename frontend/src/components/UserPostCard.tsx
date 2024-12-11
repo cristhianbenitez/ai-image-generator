@@ -59,8 +59,6 @@ export const UserPostCard = ({
     }
   }, [user, isLoading, variant, isBookmarked, id, onRemove, onBookmarkChange]);
 
-
-
   const BookmarkButton = () => (
     <button
       onClick={handleBookmark}
@@ -74,7 +72,6 @@ export const UserPostCard = ({
       <img src={BookmarkIcon} alt="Bookmark icon" />
     </button>
   );
-
 
   return (
     <article className={`w-full max-w-[248px] break-inside-avoid ${className}`}>

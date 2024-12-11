@@ -79,7 +79,10 @@ export class ImageController {
 
   async getAllImages(context: Context) {
     try {
-      const images = await imageService.getAllImages();
+      const userId = context.request.url.searchParams.get('userId');
+      const images = await imageService.getAllImages(
+        userId ? Number(userId) : undefined,
+      );
       context.response.body = images;
     } catch (error) {
       if (error instanceof AppError) {

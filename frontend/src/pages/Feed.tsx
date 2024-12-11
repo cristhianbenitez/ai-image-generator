@@ -3,17 +3,22 @@ import { ErrorMessage, LoadingSpinner, UserPostCard } from '@components';
 import { BREAKPOINT_COLUMNS } from '@constants';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { fetchAllData } from '@store/slices/dataSlice';
-import { lazy, Suspense, useCallback } from 'react';
+import { lazy, Suspense, useCallback, useEffect } from 'react';
 // Lazy load Masonry component since it's a third-party library
 const Masonry = lazy(() => import('react-masonry-css'));
 
 export const Feed = () => {
   const dispatch = useAppDispatch();
   const { allImages, loading, error } = useAppSelector(state => state.data);
+  const user = useAppSelector(state => state.auth.user);
+
+  useEffect(() => {
+    dispatch(fetchAllData({ forceRefresh: false, userId: user?.id }));
+  }, [dispatch, user]);
 
   const handleBookmarkChange = useCallback(() => {
-    dispatch(fetchAllData(true));
-  }, [dispatch]);
+    dispatch(fetchAllData({ forceRefresh: true, userId: user?.id }));
+  }, [dispatch, user]);
 
   if (loading && allImages.length === 0) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;

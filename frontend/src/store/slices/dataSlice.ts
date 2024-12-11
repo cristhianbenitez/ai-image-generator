@@ -24,14 +24,20 @@ const initialState: DataState = {
 // Cache duration in milliseconds (e.g., 5 minutes)
 const CACHE_DURATION = 5 * 60 * 1000;
 
+interface FetchAllDataParams {
+  forceRefresh?: boolean;
+  userId?: string;
+}
+
 export const fetchAllData = createAsyncThunk(
   'data/fetchAllData',
-  async (forceRefresh = false, { getState, rejectWithValue }) => {
+  async (
+    { forceRefresh = false, userId }: FetchAllDataParams,
+    { getState, rejectWithValue },
+  ) => {
     const state = getState() as RootState;
     const { lastFetched, isInitialized } = state.data;
-    const user = state.auth.user;
 
-    // Skip if already initialized and cache is valid, unless force refresh
     if (
       !forceRefresh &&
       isInitialized &&
@@ -43,9 +49,11 @@ export const fetchAllData = createAsyncThunk(
 
     try {
       const [allImagesResponse, userImagesResponse] = await Promise.all([
-        fetch(API_ENDPOINTS.IMAGES, { credentials: 'include' }),
-        user
-          ? fetch(API_ENDPOINTS.USER_IMAGES(parseInt(user.id)), {
+        fetch(`${API_ENDPOINTS.IMAGES}${userId ? `?userId=${userId}` : ''}`, {
+          credentials: 'include',
+        }),
+        userId
+          ? fetch(API_ENDPOINTS.USER_IMAGES(parseInt(userId)), {
               credentials: 'include',
             })
           : Promise.resolve(null),
@@ -56,16 +64,18 @@ export const fetchAllData = createAsyncThunk(
       }
 
       const allImages = await allImagesResponse.json();
-      const userImages = userImagesResponse ? await userImagesResponse.json() : [];
+      const userImages = userImagesResponse
+        ? await userImagesResponse.json()
+        : [];
 
       return { allImages, userImages };
     } catch (error) {
       console.error('Error fetching data:', error);
       return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to fetch data'
+        error instanceof Error ? error.message : 'Failed to fetch data',
       );
     }
-  }
+  },
 );
 
 const dataSlice = createSlice({

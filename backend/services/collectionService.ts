@@ -61,7 +61,7 @@ export class CollectionService {
 
   async getUserCollections(userId: number) {
     try {
-      return await prisma.collection.findMany({
+      const collections = await prisma.collection.findMany({
         where: { userId },
         select: {
           id: true,
@@ -80,6 +80,8 @@ export class CollectionService {
           },
         },
       });
+
+      return collections;
     } catch (error) {
       throw new AppError(`Failed to fetch user collections: ${error.message}`);
     }
