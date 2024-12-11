@@ -1,5 +1,5 @@
 import { useAppDispatch } from '@store/hooks';
-import { setUser, closeAuthModal } from '@store/slices/authSlice';
+import { setUserAndFetchData, closeAuthModal } from '@store/slices/authSlice';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,7 +26,7 @@ export const AuthCallback = () => {
           avatar: data.avatar,
         };
 
-        dispatch(setUser(userToSet));
+        dispatch(setUserAndFetchData(userToSet));
         dispatch(closeAuthModal());
         dataProcessed.current = true;
         redirectToHome();

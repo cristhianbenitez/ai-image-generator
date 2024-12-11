@@ -6,22 +6,24 @@ import { useEffect } from 'react';
 export const useData = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state: RootState) => state.auth);
-  const { allImages, userImages, loading, error } = useAppSelector(
+  const { allImages, userImages, loading, error, isInitialized } = useAppSelector(
     (state: RootState) => state.data,
   );
 
   useEffect(() => {
-    dispatch(fetchAllData(user?.id));
-  }, [dispatch, user?.id]);
+    if (user && (!isInitialized || !userImages.length)) {
+      dispatch(fetchAllData());
+    }
+  }, [dispatch, user, isInitialized, userImages.length]);
 
   const refetchData = () => {
-    dispatch(fetchAllData(user?.id));
+    dispatch(fetchAllData());
   };
 
   return {
     allImages,
     userImages,
-    loading,
+    loading: loading || (!isInitialized && !!user),
     error,
     refetchData,
   };

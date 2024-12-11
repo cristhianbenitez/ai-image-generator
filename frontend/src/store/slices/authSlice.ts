@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
+import type { AppDispatch } from '@store';
 import type { User } from '@types';
+import { fetchAllData, invalidateCache } from './dataSlice';
 
 interface AuthState {
   user: User | null;
@@ -21,6 +23,15 @@ const getBackendUrl = () => {
   }
   return 'http://localhost:8000';
 };
+
+export const setUserAndFetchData =
+  (user: User | null) => async (dispatch: AppDispatch) => {
+    dispatch(setUser(user));
+    if (user) {
+      dispatch(invalidateCache());
+      dispatch(fetchAllData());
+    }
+  };
 
 const authSlice = createSlice({
   name: 'auth',

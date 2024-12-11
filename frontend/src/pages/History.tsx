@@ -4,7 +4,6 @@ import {
   LoadingSpinner,
   NoAuthMessage,
 } from '@components';
-import { useData } from '@hooks';
 import { useAppSelector } from '@store/hooks';
 import type { GeneratedImage } from '@types';
 
@@ -55,7 +54,7 @@ const HistoryItem = ({ image }: { image: GeneratedImage }) => (
 
 export const History = () => {
   const user = useAppSelector(state => state.auth.user);
-  const { userImages: images, loading, error } = useData();
+  const { userImages: images, loading, error } = useAppSelector(state => state.data);
 
   if (!user) return <NoAuthMessage />;
   if (loading) return <LoadingSpinner />;
