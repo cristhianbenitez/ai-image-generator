@@ -26,13 +26,18 @@ const CACHE_DURATION = 5 * 60 * 1000;
 
 export const fetchAllData = createAsyncThunk(
   'data/fetchAllData',
-  async (_, { getState, rejectWithValue }) => {
+  async (forceRefresh = false, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
-    const { lastFetched } = state.data;
+    const { lastFetched, isInitialized } = state.data;
     const user = state.auth.user;
 
-    // Only check cache if user exists and cache is valid
-    if (user && lastFetched && Date.now() - lastFetched < CACHE_DURATION) {
+    // Skip if already initialized and cache is valid, unless force refresh
+    if (
+      !forceRefresh &&
+      isInitialized &&
+      lastFetched &&
+      Date.now() - lastFetched < CACHE_DURATION
+    ) {
       return null;
     }
 
@@ -51,18 +56,16 @@ export const fetchAllData = createAsyncThunk(
       }
 
       const allImages = await allImagesResponse.json();
-      const userImages = userImagesResponse
-        ? await userImagesResponse.json()
-        : [];
+      const userImages = userImagesResponse ? await userImagesResponse.json() : [];
 
       return { allImages, userImages };
     } catch (error) {
       console.error('Error fetching data:', error);
       return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to fetch data',
+        error instanceof Error ? error.message : 'Failed to fetch data'
       );
     }
-  },
+  }
 );
 
 const dataSlice = createSlice({
@@ -92,6 +95,7 @@ const dataSlice = createSlice({
       .addCase(fetchAllData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        state.isInitialized = true;
       });
   },
 });

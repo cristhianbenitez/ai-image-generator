@@ -30,3 +30,10 @@ export const GUIDANCE_SCALE = {
   DEFAULT: 7.0,
   STEP: 0.1,
 } as const;
+
+export const BREAKPOINT_COLUMNS = {
+  default: 4,
+  1100: 3,
+  700: 2,
+  500: 1,
+};

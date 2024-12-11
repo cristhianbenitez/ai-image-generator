@@ -1,28 +1,21 @@
 import SearchIcon from '@assets/icons/search.svg';
 import { ErrorMessage, LoadingSpinner, UserPostCard } from '@components';
+import { BREAKPOINT_COLUMNS } from '@constants';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { fetchAllData } from '@store/slices/dataSlice';
-import { useCallback, lazy, Suspense } from 'react';
-
+import { lazy, Suspense, useCallback } from 'react';
 // Lazy load Masonry component since it's a third-party library
 const Masonry = lazy(() => import('react-masonry-css'));
-
-const breakpointColumns = {
-  default: 4,
-  1100: 3,
-  700: 2,
-  500: 1,
-};
 
 export const Feed = () => {
   const dispatch = useAppDispatch();
   const { allImages, loading, error } = useAppSelector(state => state.data);
 
   const handleBookmarkChange = useCallback(() => {
-    dispatch(fetchAllData());
+    dispatch(fetchAllData(true));
   }, [dispatch]);
 
-  if (loading) return <LoadingSpinner />;
+  if (loading && allImages.length === 0) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
 
   return (
@@ -47,7 +40,7 @@ export const Feed = () => {
 
       <Suspense fallback={<LoadingSpinner />}>
         <Masonry
-          breakpointCols={breakpointColumns}
+          breakpointCols={BREAKPOINT_COLUMNS}
           className="flex w-full gap-6 pb-10"
           columnClassName="flex flex-col gap-6"
         >

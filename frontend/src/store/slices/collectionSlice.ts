@@ -17,17 +17,36 @@ interface CollectionState {
   } | null;
   loading: boolean;
   error: string | null;
+  isInitialized: boolean;
+  lastFetched: number | null;
 }
 
 const initialState: CollectionState = {
   collection: null,
   loading: true,
   error: null,
+  isInitialized: false,
+  lastFetched: null,
 };
+
+// Cache duration in milliseconds (e.g., 5 minutes)
+const CACHE_DURATION = 5 * 60 * 1000;
 
 export const fetchCollection = createAsyncThunk(
   'collection/fetchCollection',
-  async (userId: string, { rejectWithValue }) => {
+  async (userId: string, { getState, rejectWithValue }) => {
+    const state = getState() as { collection: CollectionState };
+    const { lastFetched, isInitialized } = state.collection;
+
+    // Skip if already initialized and cache is valid
+    if (
+      isInitialized &&
+      lastFetched &&
+      Date.now() - lastFetched < CACHE_DURATION
+    ) {
+      return null;
+    }
+
     try {
       const response = await fetch(`${API_ENDPOINTS.COLLECTIONS}/${userId}`, {
         credentials: 'include',
@@ -58,6 +77,9 @@ const collectionSlice = createSlice({
         );
       }
     },
+    invalidateCache: state => {
+      state.lastFetched = null;
+    },
   },
   extraReducers: builder => {
     builder
@@ -69,6 +91,7 @@ const collectionSlice = createSlice({
         state.loading = false;
         state.collection = action.payload;
         state.error = null;
+        state.lastFetched = Date.now();
       })
       .addCase(fetchCollection.rejected, (state, action) => {
         state.loading = false;
