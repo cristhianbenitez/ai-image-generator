@@ -8,6 +8,7 @@
     "install-backend": "cd backend && deno run --allow-net --allow-read --allow-write --allow-env --allow-run npm:prisma@latest generate",
     "db:generate": "cd backend && deno run --allow-net --allow-read --allow-write --allow-env --allow-run npm:prisma@latest generate",
     "db:push": "cd backend && deno run --allow-net --allow-read --allow-write --allow-env --allow-run npm:prisma@latest db push",
+    "db:studio": "cd backend && deno run --allow-net --allow-read --allow-write --allow-env --allow-run npm:prisma@latest studio",
     "lint": "deno lint",
     "fmt": "deno fmt"
   },

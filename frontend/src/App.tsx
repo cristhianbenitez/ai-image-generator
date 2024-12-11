@@ -1,15 +1,17 @@
-import AuthModal from '@components/AuthModal';
-import { Layout } from '@components/Layout';
-import AuthCallback from '@pages/AuthCallback';
-import { Collection } from '@pages/Collection';
-import { Feed } from '@pages/Feed';
-import { Home } from '@pages/Home';
-import { Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/auth';
-import { useAuth } from './hooks/useAuth';
+import { AuthModal, Layout, LoadingSpinner } from '@components';
+import { AuthCallback, Collection, Feed, History, Home } from '@pages';
 
-function AppContent() {
-  const { isAuthModalOpen, closeAuthModal } = useAuth();
+import { useInitializeData } from '@hooks';
+import { useAppSelector } from '@store/hooks';
+import { Route, Routes } from 'react-router-dom';
+
+function App() {
+  const isAuthModalOpen = useAppSelector(state => state.auth.isAuthModalOpen);
+  const { isInitialized } = useInitializeData();
+
+  if (!isInitialized) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Layout>
@@ -17,23 +19,12 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/collection" element={<Collection />} />
+        <Route path="/history" element={<History />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route
-          path="/login"
-          element={<AuthModal isOpen={true} onClose={closeAuthModal} />}
-        />
+        <Route path="/login" element={<AuthModal isOpen={true} />} />
       </Routes>
-      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
+      <AuthModal isOpen={isAuthModalOpen} />
     </Layout>
-  );
-}
-
-// Wrapper component that provides context
-function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
   );
 }
 

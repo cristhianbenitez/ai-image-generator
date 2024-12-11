@@ -19,14 +19,20 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-
-    "baseUrl": ".",
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@pages/*": ["src/pages/*"],
-      "@assets/*": ["src/assets/*"],
-      "@hooks/*": ["src/hooks/*"]
+      "@pages": ["pages"],
+      "@components": ["components"],
+      "@assets": ["assets"],
+      "@hooks": ["hooks"],
+      "@types": ["types"],
+      "@services": ["services"],
+      "@store": ["store"],
+      "@store/*": ["store/*"],
+      "@constants": ["constants"],
+      // not a lot of files in these folders so we can use the wildcard
+      "@config/*": ["config/*"],
+      "@utils/*": ["utils/*"]
     }
   },
   "include": ["src"]
