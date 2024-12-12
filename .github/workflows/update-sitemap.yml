@@ -1,0 +1,39 @@
+name: Update Sitemap
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend # Set working directory to backend
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate sitemap
+        run: npm run generate-sitemap
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          VITE_FRONTEND_URL: 'https://taanga-images.onrender.com'
+          VITE_BACKEND_URL: 'https://taanga-backend.onrender.com'
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add ../frontend/public/sitemap.xml
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update sitemap" && git push)

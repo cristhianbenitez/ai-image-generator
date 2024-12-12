@@ -35,7 +35,6 @@ router.get('/:userId', async (req: Request, res: Response): Promise<void> => {
 
     res.json(collection);
   } catch (error) {
-    console.error('Error fetching collection:', error);
     res.status(500).json({ error: 'Failed to fetch collection' });
   }
 });
@@ -91,7 +90,6 @@ router.post('/:userId', async (req: Request, res: Response): Promise<void> => {
 
     res.json(result);
   } catch (error) {
-    console.error('Error updating collection:', error);
     res.status(500).json({ error: 'Failed to update collection' });
   }
 });
@@ -102,23 +100,35 @@ router.delete('/:userId/images/:imageId', async (req: Request, res: Response): P
     const userId = parseInt(req.params.userId);
     const imageId = parseInt(req.params.imageId);
 
-    const result = await prisma.$transaction(async (tx) => {
-      // Find the collection
-      const collection = await tx.collection.findUnique({
-        where: { userId },
-        include: { images: true }
-      });
+    // First, verify the collection exists and belongs to the user
+    const collection = await prisma.collection.findUnique({
+      where: { userId },
+      include: { images: true }
+    });
 
-      if (!collection) {
-        throw new Error('Collection not found');
-      }
+    if (!collection) {
+      res.status(404).json({ error: 'Collection not found' });
+      return;
+    }
 
+    // Check if the image is in the collection
+    const imageExists = collection.images.some(img => img.id === imageId);
+
+    if (!imageExists) {
+      res.status(404).json({ error: 'Image not found in collection' });
+      return;
+    }
+
+    try {
       // Update collection by disconnecting the image
-      const updatedCollection = await tx.collection.update({
-        where: { id: collection.id },
+      const updatedCollection = await prisma.collection.update({
+        where: {
+          id: collection.id,
+          userId: userId // Additional check to ensure user ownership
+        },
         data: {
           images: {
-            disconnect: { id: imageId }
+            disconnect: [{ id: imageId }]
           }
         },
         include: {
@@ -130,12 +140,12 @@ router.delete('/:userId/images/:imageId', async (req: Request, res: Response): P
         }
       });
 
-      return updatedCollection;
-    });
+      res.json(updatedCollection);
+    } catch (updateError) {
+      throw updateError;
+    }
 
-    res.json(result);
   } catch (error) {
-    console.error('Error removing image from collection:', error);
     res.status(500).json({
       error: 'Failed to remove image from collection',
       details: error instanceof Error ? error.message : 'Unknown error'

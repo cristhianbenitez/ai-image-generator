@@ -3,6 +3,7 @@ import {
   ErrorMessage,
   LoadingSpinner,
   NoAuthMessage,
+  SEO
 } from '@components';
 import { useAppSelector } from '@store/hooks';
 import type { GeneratedImage } from '@types';
@@ -35,7 +36,7 @@ const HistoryItem = ({ image }: { image: GeneratedImage }) => (
             {new Date(image.createdAt).toLocaleDateString('en-US', {
               day: 'numeric',
               month: 'short',
-              year: 'numeric',
+              year: 'numeric'
             })}
           </p>
         </div>
@@ -54,22 +55,33 @@ const HistoryItem = ({ image }: { image: GeneratedImage }) => (
 
 export const History = () => {
   const user = useAppSelector(state => state.auth.user);
-  const { userImages: images, loading, error } = useAppSelector(state => state.data);
+  const {
+    userImages: images,
+    loading,
+    error
+  } = useAppSelector(state => state.data);
 
   if (!user) return <NoAuthMessage />;
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <section className="w-full max-w-[1100px]">
-      <h1 className="text-2xl font-normal mb-8">Generation History</h1>
-      <div className="flex flex-col gap-10 w-full">
-        {images.length === 0 ? (
-          <EmptyHistory />
-        ) : (
-          images.map(image => <HistoryItem key={image.id} image={image} />)
-        )}
-      </div>
-    </section>
+    <>
+      <SEO
+        title="History | Ta'anga"
+        description="View your AI art generation history on Ta'anga. Track and revisit all the unique pieces you've created using our AI image generator."
+        keywords="AI art history, image generation history, creation timeline, Ta'anga history"
+      />
+      <section className="w-full max-w-[1100px]">
+        <h1 className="text-2xl font-normal mb-8">Generation History</h1>
+        <div className="flex flex-col gap-10 w-full">
+          {images.length === 0 ? (
+            <EmptyHistory />
+          ) : (
+            images.map(image => <HistoryItem key={image.id} image={image} />)
+          )}
+        </div>
+      </section>
+    </>
   );
 };

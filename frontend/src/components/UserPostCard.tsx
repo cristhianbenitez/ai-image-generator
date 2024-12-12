@@ -1,3 +1,4 @@
+import React, { FC } from 'react';
 import BookmarkIcon from '@assets/icons/bookmark.svg';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
@@ -12,17 +13,12 @@ interface UserPostCardProps {
   onDelete?: () => void;
 }
 
-const BookmarkButton = ({
-  isBookmarked,
-  isLoading,
-  user,
-  handleBookmark
-}: {
+const BookmarkButton: FC<{
   isBookmarked: boolean;
   isLoading: boolean;
   user: User | null;
   handleBookmark: () => void;
-}) => (
+}> = ({ isBookmarked, isLoading, user, handleBookmark }) => (
   <button
     onClick={handleBookmark}
     disabled={isLoading || !user}
@@ -36,11 +32,11 @@ const BookmarkButton = ({
   </button>
 );
 
-export const UserPostCard = ({ post, onDelete }: UserPostCardProps) => {
+export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector(state => state.auth);
   const { images: collectionImages, loading } = useAppSelector(
-    (state) => state.collection
+    state => state.collection
   );
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -49,7 +45,7 @@ export const UserPostCard = ({ post, onDelete }: UserPostCardProps) => {
 
   useEffect(() => {
     // Check if image is in collection
-    setIsBookmarked(collectionImages.some((img) => img.id === id));
+    setIsBookmarked(collectionImages.some(img => img.id === id));
   }, [collectionImages, id]);
 
   const handleBookmark = async () => {
@@ -93,7 +89,12 @@ export const UserPostCard = ({ post, onDelete }: UserPostCardProps) => {
       />
       <div className="absolute bottom-0 left-0 right-0 top-1/2 bg-gradient-to-t from-black/80 via-black/10 to-transparent">
         <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-center">
-          <span className="text-sm text-white font-medium cursor-default">
+          <span className="text-sm text-white flex items-center gap-2 font-medium cursor-default">
+            <img
+              src={user?.avatar}
+              alt={user?.name}
+              className="w-6 h-6 rounded-full"
+            />
             {user?.name}
           </span>
           <BookmarkButton

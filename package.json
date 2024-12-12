@@ -1,0 +1,31 @@
+{
+  "name": "taanga",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  },
+  "scripts": {
+    "preinstall": "npm install -g concurrently",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "setup": "npm install && npm run setup:env && npm run setup:backend && npm run setup:frontend",
+    "setup:env": "node -e \"const fs=require('fs'); ['frontend/.env', 'frontend/.env.production'].forEach(f => !fs.existsSync(f) && fs.copyFileSync(f+'.example', f));\"",
+    "setup:frontend": "cd frontend && npm install",
+    "setup:backend": "cd backend && npm install",
+    "db:generate": "cd backend && npx prisma generate",
+    "db:push": "cd backend && npx prisma db push",
+    "db:studio": "cd backend && npx prisma studio",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "generate-sitemap": "cd backend && npm run generate-sitemap"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1"
+  }
+}

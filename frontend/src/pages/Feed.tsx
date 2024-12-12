@@ -5,7 +5,8 @@ import {
   UserPostCard,
   LoadingSpinner,
   ErrorMessage,
-  EmptyFeed
+  EmptyFeed,
+  SEO
 } from '@components';
 import Masonry from 'react-masonry-css';
 import { BREAKPOINT_COLUMNS } from '@constants';
@@ -32,18 +33,25 @@ export const Feed = () => {
     );
 
   return (
-    <div className="w-full mx-auto px-4 py-8">
-      <Suspense fallback={<LoadingSpinner />}>
-        <Masonry
-          breakpointCols={BREAKPOINT_COLUMNS}
-          className="flex w-full gap-6 pb-10"
-          columnClassName="flex flex-col gap-6"
-        >
-          {allImages.map((image) => (
-            <UserPostCard key={image.id} post={image} />
-          ))}
-        </Masonry>
-      </Suspense>
-    </div>
+    <>
+      <SEO
+        title="Explore | Ta'anga"
+        description="Discover amazing AI-generated artwork created by the Ta'anga community. Get inspired by unique creations and join our creative community."
+        keywords="AI art gallery, community artwork, AI image showcase, digital art community, Ta'anga explore"
+      />
+      <div className="w-full mx-auto px-4 py-8">
+        <Suspense fallback={<LoadingSpinner />}>
+          <Masonry
+            breakpointCols={BREAKPOINT_COLUMNS}
+            className="flex w-full gap-6 pb-10"
+            columnClassName="flex flex-col gap-6"
+          >
+            {allImages.map((image) => (
+              <UserPostCard key={image.id} post={image} />
+            ))}
+          </Masonry>
+        </Suspense>
+      </div>
+    </>
   );
 };

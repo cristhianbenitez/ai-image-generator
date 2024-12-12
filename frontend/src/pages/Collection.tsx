@@ -6,7 +6,8 @@ import {
   LoadingSpinner,
   NoAuthMessage,
   ErrorMessage,
-  EmptyFeed
+  EmptyFeed,
+  SEO
 } from '@components';
 
 export const Collection = () => {
@@ -34,13 +35,20 @@ export const Collection = () => {
     );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Your Collection</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {images.map((image) => (
-          <UserPostCard key={image.id} post={image} />
-        ))}
+    <>
+      <SEO
+        title="Collection | Ta'anga"
+        description="View and manage your saved AI-generated artwork collection. Organize and revisit your favorite pieces created with Ta'anga."
+        keywords="AI art collection, saved artwork, digital art portfolio, Ta'anga collection"
+      />
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">Your Collection</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {images.map((image) => (
+            <UserPostCard key={image.id} post={image} />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
