@@ -89,8 +89,8 @@ class OAuth2Client {
   }
 }
 
-// Use dynamic callback URL based on environment
-const CALLBACK_URL = `${getBackendUrl()}/auth/github/callback`;
+// Use production callback URL
+const CALLBACK_URL = 'https://taanga-backend.vercel.app/auth/github/callback';
 
 export const oauth2Client = new OAuth2Client({
   clientId: process.env.GITHUB_CLIENT_ID!,
