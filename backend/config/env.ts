@@ -1,28 +1,14 @@
-import { config } from "https://deno.land/x/dotenv/mod.ts";
+import { config as dotenvConfig } from 'dotenv';
 
-const getBaseUrl = () => {
-  if (Deno.env.get("VERCEL_URL")) {
-    return `https://${Deno.env.get("VERCEL_URL")}`;
-  }
-  return "http://localhost:8000";
+// Load environment variables from .env file
+dotenvConfig();
+
+export const config = {
+  port: process.env.PORT || 8000,
+  frontendUrlLocal: process.env.VITE_FRONTEND_URL_LOCAL,
+  frontendUrl: process.env.VITE_FRONTEND_URL,
+  jwtSecret: process.env.JWT_SECRET,
+  // Add other environment variables as needed
 };
 
-const getFrontendUrl = () => {
-  // For production in Vercel
-  if (Deno.env.get("VERCEL_ENV") === "production") {
-    return `https://${Deno.env.get("VERCEL_URL")}`;
-  }
-  // For preview deployments
-  if (Deno.env.get("VERCEL_URL")) {
-    return `https://${Deno.env.get("VERCEL_URL").replace("-api", "")}`;
-  }
-  // For local development
-  return "http://localhost:5173";
-};
-
-export const env = {
-  ...config(),
-  FRONTEND_URL: getFrontendUrl(),
-  BACKEND_URL: getBaseUrl(),
-  // ... other env variables
-};
+export default config;

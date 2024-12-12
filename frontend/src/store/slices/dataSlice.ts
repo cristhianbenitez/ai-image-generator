@@ -2,6 +2,7 @@ import { API_ENDPOINTS } from '@config/api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '@store';
 import type { GeneratedImage } from '@types';
+import { apiRequest } from '@utils/api';
 
 interface DataState {
   allImages: GeneratedImage[];
@@ -25,19 +26,17 @@ const initialState: DataState = {
 const CACHE_DURATION = 5 * 60 * 1000;
 
 interface FetchAllDataParams {
-  forceRefresh?: boolean;
   userId?: string;
+  forceRefresh?: boolean;
 }
 
 export const fetchAllData = createAsyncThunk(
   'data/fetchAllData',
-  async (
-    { forceRefresh = false, userId }: FetchAllDataParams,
-    { getState, rejectWithValue },
-  ) => {
+  async ({ userId, forceRefresh = false }: FetchAllDataParams, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
     const { lastFetched, isInitialized } = state.data;
 
+    // Skip if already initialized and cache is valid, unless force refresh is requested
     if (
       !forceRefresh &&
       isInitialized &&
@@ -48,47 +47,29 @@ export const fetchAllData = createAsyncThunk(
     }
 
     try {
-      const [allImagesResponse, userImagesResponse] = await Promise.all([
-        fetch(`${API_ENDPOINTS.IMAGES}${userId ? `?userId=${userId}` : ''}`, {
-          credentials: 'include',
-        }),
-        userId
-          ? fetch(API_ENDPOINTS.USER_IMAGES(parseInt(userId)), {
-              credentials: 'include',
-            })
-          : Promise.resolve(null),
+      const [allImages, userImages] = await Promise.all([
+        apiRequest(`${API_ENDPOINTS.IMAGES}${userId ? `?userId=${userId}` : ''}`),
+        userId ? apiRequest(API_ENDPOINTS.USER_IMAGES(parseInt(userId))) : Promise.resolve([]),
       ]);
-
-      if (!allImagesResponse.ok) {
-        throw new Error('Failed to fetch images');
-      }
-
-      const allImages = await allImagesResponse.json();
-      const userImages = userImagesResponse
-        ? await userImagesResponse.json()
-        : [];
 
       return { allImages, userImages };
     } catch (error) {
-      console.error('Error fetching data:', error);
-      return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to fetch data',
-      );
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch data');
     }
-  },
+  }
 );
 
 const dataSlice = createSlice({
   name: 'data',
   initialState,
   reducers: {
-    invalidateCache: state => {
+    invalidateCache: (state) => {
       state.lastFetched = null;
     },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchAllData.pending, state => {
+      .addCase(fetchAllData.pending, (state) => {
         state.loading = true;
         state.error = null;
       })

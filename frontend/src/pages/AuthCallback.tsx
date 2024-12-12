@@ -12,19 +12,27 @@ export const AuthCallback = () => {
     const redirectToHome = () => navigate('/', { replace: true });
     const redirectToLogin = () => navigate('/login');
 
-    const processUserData = (rawUserData: string) => {
+    const processUserData = (rawData: string) => {
       try {
-        const data = JSON.parse(decodeURIComponent(rawUserData));
+        console.log('Processing raw data:', rawData); // Debug log
+        const data = JSON.parse(decodeURIComponent(rawData));
+        console.log('Parsed data:', data); // Debug log
 
-        if (!data) {
-          throw new Error('No user data received');
+        if (!data || !data.user) {
+          throw new Error('Invalid user data received');
         }
 
         const userToSet = {
-          id: data.id.toString(),
-          name: data.name,
-          avatar: data.avatar,
+          id: data.user.id.toString(),
+          name: data.user.name,
+          avatar: data.user.avatar,
+          email: data.user.email,
         };
+
+        // Store the token if present
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token);
+        }
 
         dispatch(setUserAndFetchData(userToSet));
         dispatch(closeAuthModal());
@@ -32,42 +40,31 @@ export const AuthCallback = () => {
         redirectToHome();
       } catch (error) {
         console.error('Error processing user data:', error);
+        console.error('Raw data was:', rawData); // Debug log
         redirectToLogin();
       }
     };
 
     const handleCallback = () => {
-      // Check if auth was already processed
-      if (localStorage.getItem('auth_processed')) {
-        redirectToHome();
-        return;
-      }
-
-      // Skip if we've already processed data in this instance
-      if (dataProcessed.current) {
-        return;
-      }
-
+      console.log('URL on callback:', window.location.href); // Debug log
       const searchParams = new URLSearchParams(window.location.search);
-      const userData = searchParams.get('data');
+      const data = searchParams.get('data');
 
-      if (!userData) {
-        // Only redirect to login if auth hasn't been processed
-        if (!localStorage.getItem('auth_processed')) {
-          redirectToLogin();
-        }
+      if (!data) {
+        console.error('No data parameter found in URL'); // Debug log
+        redirectToLogin();
         return;
       }
 
-      processUserData(userData);
+      processUserData(data);
     };
 
-    handleCallback();
+    if (!dataProcessed.current) {
+      handleCallback();
+    }
 
     return () => {
-      if (!dataProcessed.current) {
-        localStorage.removeItem('auth_processed');
-      }
+      // Cleanup
     };
   }, [dispatch, navigate]);
 

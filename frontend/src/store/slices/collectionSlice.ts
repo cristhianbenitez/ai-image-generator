@@ -1,20 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { collectionService } from '@services/collectionService';
 import type { GeneratedImage } from '@types';
-import { API_ENDPOINTS } from '@config/api';
-
-interface CollectionImage extends GeneratedImage {
-  user: {
-    name: string;
-    avatar: string;
-  };
-}
+import type { RootState } from '@store';
 
 interface CollectionState {
-  collection: {
-    id: number;
-    userId: number;
-    images: CollectionImage[];
-  } | null;
+  images: GeneratedImage[];
   loading: boolean;
   error: string | null;
   isInitialized: boolean;
@@ -22,20 +12,20 @@ interface CollectionState {
 }
 
 const initialState: CollectionState = {
-  collection: null,
-  loading: true,
+  images: [],
+  loading: false,
   error: null,
   isInitialized: false,
-  lastFetched: null,
+  lastFetched: null
 };
 
 // Cache duration in milliseconds (e.g., 5 minutes)
 const CACHE_DURATION = 5 * 60 * 1000;
 
-export const fetchCollection = createAsyncThunk(
-  'collection/fetchCollection',
-  async (userId: string, { getState, rejectWithValue }) => {
-    const state = getState() as { collection: CollectionState };
+export const fetchUserCollection = createAsyncThunk(
+  'collection/fetchUserCollection',
+  async (userId: number, { getState }) => {
+    const state = getState() as RootState;
     const { lastFetched, isInitialized } = state.collection;
 
     // Skip if already initialized and cache is valid
@@ -47,22 +37,24 @@ export const fetchCollection = createAsyncThunk(
       return null;
     }
 
-    try {
-      const response = await fetch(`${API_ENDPOINTS.COLLECTIONS}/${userId}`, {
-        credentials: 'include',
-      });
+    const collection = await collectionService.getUserCollection(userId);
+    return collection.images || [];
+  }
+);
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch collection');
-      }
+export const saveToCollection = createAsyncThunk(
+  'collection/saveToCollection',
+  async ({ userId, imageId }: { userId: number; imageId: number }) => {
+    const response = await collectionService.saveToCollection(userId, imageId);
+    return response.images || [];
+  }
+);
 
-      const data = await response.json();
-      return data[0] || { id: 0, userId: parseInt(userId), images: [] };
-    } catch (error) {
-      return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to load collection'
-      );
-    }
+export const removeFromCollection = createAsyncThunk(
+  'collection/removeFromCollection',
+  async ({ userId, imageId }: { userId: number; imageId: number }) => {
+    const response = await collectionService.removeFromCollection(userId, imageId);
+    return response.images || [];
   }
 );
 
@@ -70,35 +62,64 @@ const collectionSlice = createSlice({
   name: 'collection',
   initialState,
   reducers: {
-    removeImage: (state, action) => {
-      if (state.collection) {
-        state.collection.images = state.collection.images.filter(
-          img => img.id !== action.payload
-        );
-      }
+    clearCollectionError: (state) => {
+      state.error = null;
     },
-    invalidateCache: state => {
+    invalidateCache: (state) => {
       state.lastFetched = null;
-    },
+    }
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchCollection.pending, state => {
+      // Fetch collection
+      .addCase(fetchUserCollection.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchCollection.fulfilled, (state, action) => {
+      .addCase(fetchUserCollection.fulfilled, (state, action) => {
         state.loading = false;
-        state.collection = action.payload;
+        if (action.payload) {
+          state.images = action.payload;
+          state.lastFetched = Date.now();
+        }
+        state.isInitialized = true;
         state.error = null;
+      })
+      .addCase(fetchUserCollection.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch collection';
+        state.isInitialized = true;
+      })
+      // Save to collection
+      .addCase(saveToCollection.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(saveToCollection.fulfilled, (state, action) => {
+        state.loading = false;
+        state.images = action.payload;
         state.lastFetched = Date.now();
       })
-      .addCase(fetchCollection.rejected, (state, action) => {
+      .addCase(saveToCollection.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.error.message || 'Failed to save to collection';
+      })
+      // Remove from collection
+      .addCase(removeFromCollection.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(removeFromCollection.fulfilled, (state, action) => {
+        state.loading = false;
+        state.images = action.payload;
+        state.lastFetched = Date.now();
+      })
+      .addCase(removeFromCollection.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to remove from collection';
       });
-  },
+  }
 });
 
-export const { removeImage } = collectionSlice.actions;
-export default collectionSlice.reducer; 
+export const { clearCollectionError, invalidateCache } = collectionSlice.actions;
+export default collectionSlice.reducer;

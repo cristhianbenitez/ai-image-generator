@@ -7,7 +7,7 @@ export const API_ENDPOINTS = {
   IMAGES: `${API_BASE}/api/images`,
   COLLECTIONS: `${API_BASE}/api/collections`,
   GENERATE: `${API_BASE}/api/generate`,
-  USER_IMAGES: (userId: number) => `${API_BASE}/api/users/${userId}/images`,
+  USER_IMAGES: (userId: number) => `${API_BASE}/api/images/user/${userId}`,
   USER_HISTORY: (userId: number) => `${API_BASE}/api/users/${userId}/history`,
   USER_COLLECTIONS: (userId: number) => `${API_BASE}/api/users/${userId}/collections`,
 } as const;

@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { AppDispatch } from '@store';
 import type { User } from '@types';
 import { fetchAllData, invalidateCache } from './dataSlice';
+import { fetchUserCollection } from './collectionSlice';
 
 interface AuthState {
   user: User | null;
@@ -21,7 +22,7 @@ const getBackendUrl = () => {
   if (import.meta.env.VERCEL_URL) {
     return `https://${import.meta.env.VERCEL_URL}`;
   }
-  return 'http://localhost:8000';
+  return import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 };
 
 export const setUserAndFetchData =
@@ -29,7 +30,10 @@ export const setUserAndFetchData =
     dispatch(setUser(user));
     if (user) {
       dispatch(invalidateCache());
-      dispatch(fetchAllData());
+      await Promise.all([
+        dispatch(fetchAllData({ userId: user.id })),
+        dispatch(fetchUserCollection(parseInt(user.id)))
+      ]);
     }
   };
 
@@ -55,9 +59,12 @@ const authSlice = createSlice({
       state.isAuthModalOpen = false;
     },
     login: () => {
-      window.location.href = `${getBackendUrl()}/auth/github`;
+      const backendUrl = getBackendUrl();
+      const loginUrl = `${backendUrl}/auth/github`;
+      window.location.href = loginUrl;
     },
     logout: state => {
+      localStorage.removeItem('auth_token');
       state.user = null;
       state.isAuthenticated = false;
       state.isAuthModalOpen = false;

@@ -1,9 +1,9 @@
-import { env } from '../config/env.ts';
-import { oauth2Client } from '../config/oauth.ts';
-import { PrismaClient } from '../generated/client/deno/edge.ts';
+import { PrismaClient } from '@prisma/client';
+import { oauth2Client } from '../config/oauth';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient({
-  datasources: { db: { url: env.DATABASE_URL } },
+  datasources: { db: { url: process.env.DATABASE_URL } },
 });
 
 export class AuthService {
@@ -12,22 +12,46 @@ export class AuthService {
   }
 
   async handleGithubCallback(url: string) {
+    // Get GitHub token
     const token = await oauth2Client.code.getToken(url);
+
+    // Get user info and emails
     const userInfo = await this.getGithubUserInfo(token.accessToken);
     const emails = await this.getGithubUserEmails(token.accessToken);
 
+    // Validate required fields
+    if (!userInfo.id || !emails[0]?.email) {
+      throw new Error('Invalid user data from GitHub');
+    }
+
+    // Create or update user
     const user = await this.findOrCreateUser({
       name: userInfo.name || userInfo.login,
       githubId: userInfo.id.toString(),
       avatar: userInfo.avatar_url,
+      email: emails[0].email,
     });
 
-    return user;
+    // Generate JWT
+    const jwtToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET!,
+      { expiresIn: '24h' }
+    );
+
+    return {
+      user,
+      token: jwtToken,
+      tokenType: 'Bearer'
+    };
   }
 
   private async getGithubUserInfo(accessToken: string) {
     const response = await fetch('https://api.github.com/user', {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/json',
+      },
     });
 
     if (!response.ok) {
@@ -39,7 +63,10 @@ export class AuthService {
 
   private async getGithubUserEmails(accessToken: string) {
     const response = await fetch('https://api.github.com/user/emails', {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/json',
+      },
     });
 
     if (!response.ok) {
@@ -53,6 +80,7 @@ export class AuthService {
     name: string;
     githubId: string;
     avatar: string;
+    email: string;
   }) {
     let user = await prisma.user.findUnique({
       where: { githubId: userData.githubId },
@@ -60,15 +88,56 @@ export class AuthService {
 
     if (!user) {
       user = await prisma.user.create({
-        data: userData,
+        data: {
+          ...userData,
+        },
       });
     } else {
       user = await prisma.user.update({
         where: { id: user.id },
-        data: { avatar: userData.avatar },
+        data: {
+          avatar: userData.avatar,
+          email: userData.email,
+          name: userData.name,
+        },
       });
     }
 
     return user;
+  }
+
+  // Validate JWT token
+  async validateToken(token: string) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+      });
+      return user;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  // Create a test user for development
+  async findOrCreateTestUser() {
+    const testUser = await prisma.user.findFirst({
+      where: {
+        email: 'test@example.com'
+      }
+    });
+
+    if (testUser) {
+      return testUser;
+    }
+
+    return prisma.user.create({
+      data: {
+        name: 'Test User',
+        email: 'test@example.com',
+        githubId: 'test123',
+        avatar: 'https://github.com/identicons/test.png'
+      }
+    });
   }
 }

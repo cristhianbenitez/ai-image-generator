@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.production
 
 # Add these if not already present
 .vercel

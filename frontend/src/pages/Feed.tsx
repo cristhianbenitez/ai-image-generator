@@ -1,73 +1,49 @@
-import SearchIcon from '@assets/icons/search.svg';
-import { ErrorMessage, LoadingSpinner, UserPostCard } from '@components';
-import { BREAKPOINT_COLUMNS } from '@constants';
+import { Suspense, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { fetchAllData } from '@store/slices/dataSlice';
-import { lazy, Suspense, useCallback, useEffect } from 'react';
-// Lazy load Masonry component since it's a third-party library
-const Masonry = lazy(() => import('react-masonry-css'));
+import {
+  UserPostCard,
+  LoadingSpinner,
+  ErrorMessage,
+  EmptyFeed
+} from '@components';
+import Masonry from 'react-masonry-css';
+import { BREAKPOINT_COLUMNS } from '@constants';
 
 export const Feed = () => {
   const dispatch = useAppDispatch();
-  const { allImages, loading, error } = useAppSelector(state => state.data);
-  const user = useAppSelector(state => state.auth.user);
+  const { user } = useAppSelector((state) => state.auth);
+  const { allImages, loading, error } = useAppSelector((state) => state.data);
 
   useEffect(() => {
-    dispatch(fetchAllData({ forceRefresh: false, userId: user?.id }));
-  }, [dispatch, user]);
+    if (user?.id) {
+      dispatch(fetchAllData({ userId: user.id }));
+    }
+  }, [dispatch, user?.id]);
 
-  const handleBookmarkChange = useCallback(() => {
-    dispatch(fetchAllData({ forceRefresh: true, userId: user?.id }));
-  }, [dispatch, user]);
-
-  if (loading && allImages.length === 0) return <LoadingSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
+  if (!allImages.length)
+    return (
+      <EmptyFeed
+        title="No images yet"
+        description="Be the first to create something amazing!"
+      />
+    );
 
   return (
-    <section className="max-w-[1064px] mx-auto">
-      <form
-        role="search-bar"
-        className="w-full px-4 py-2 h-[48px] max-w-lg flex items-center gap-2 bg-darkAlt rounded-lg text-white font-normal mb-10"
-      >
-        <input
-          type="search"
-          placeholder="Search"
-          className="w-full h-full bg-transparent outline-none"
-        />
-        <button
-          type="submit"
-          className="bg-primary text-white rounded-lg"
-          aria-label="Search"
-        >
-          <img src={SearchIcon} alt="" width="24" height="24" />
-        </button>
-      </form>
-
+    <div className="w-full mx-auto px-4 py-8">
       <Suspense fallback={<LoadingSpinner />}>
         <Masonry
           breakpointCols={BREAKPOINT_COLUMNS}
           className="flex w-full gap-6 pb-10"
           columnClassName="flex flex-col gap-6"
         >
-          {allImages.map(image => (
-            <UserPostCard
-              key={image.id}
-              id={image.id}
-              name={image.user.name}
-              image={image.imageUrl}
-              avatar={
-                image.user.avatar ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  image.user.name,
-                )}`
-              }
-              isBookmarked={image.isBookmarked}
-              onBookmarkChange={handleBookmarkChange}
-              variant="feed"
-            />
+          {allImages.map((image) => (
+            <UserPostCard key={image.id} post={image} />
           ))}
         </Masonry>
       </Suspense>
-    </section>
+    </div>
   );
 };

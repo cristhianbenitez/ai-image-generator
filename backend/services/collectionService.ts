@@ -1,5 +1,5 @@
 import { env } from '../config/env.ts';
-import { PrismaClient } from '../generated/client/deno/edge.ts';
+import { PrismaClient } from '@prisma/client';
 import { AppError, UserNotFoundError } from '../types/errors.ts';
 
 const prisma = new PrismaClient({

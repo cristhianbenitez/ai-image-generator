@@ -1,5 +1,5 @@
 import { env } from '../config/env.ts';
-import { PrismaClient } from '../generated/client/deno/edge.ts';
+import { PrismaClient } from '@prisma/client';
 import { AppError, UserNotFoundError } from '../types/errors.ts';
 
 const prisma = new PrismaClient({
@@ -75,17 +75,17 @@ export class ImageService {
           user: {
             select: {
               name: true,
-              avatar: true
-            }
-          }
-        }
+              avatar: true,
+            },
+          },
+        },
       });
 
       // If no userId provided, return images without bookmark info
       if (!userId) {
         return images.map(image => ({
           ...image,
-          isBookmarked: false
+          isBookmarked: false,
         }));
       }
 
@@ -94,20 +94,20 @@ export class ImageService {
         where: { userId },
         include: {
           images: {
-            select: { id: true }
-          }
-        }
+            select: { id: true },
+          },
+        },
       });
 
       // Create a Set of bookmarked image IDs for efficient lookup
       const bookmarkedImageIds = new Set(
-        userCollection?.images.map(img => img.id) || []
+        userCollection?.images.map(img => img.id) || [],
       );
 
       // Add isBookmarked property to each image
       return images.map(image => ({
         ...image,
-        isBookmarked: bookmarkedImageIds.has(image.id)
+        isBookmarked: bookmarkedImageIds.has(image.id),
       }));
     } catch (error) {
       throw new AppError(`Failed to fetch images: ${error.message}`);

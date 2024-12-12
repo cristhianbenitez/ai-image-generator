@@ -1,9 +1,9 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { persistMiddleware } from './middleware/persistMiddleware';
+import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
-import collectionReducer from './slices/collectionSlice';
 import dataReducer from './slices/dataSlice';
+import collectionReducer from './slices/collectionSlice';
 import imageReducer from './slices/imageSlice';
+import { persistMiddleware } from './middleware/persistMiddleware';
 
 // Load persisted state
 const loadState = () => {
@@ -17,19 +17,17 @@ const loadState = () => {
   }
 };
 
-const rootReducer = combineReducers({
-  auth: authReducer,
-  image: imageReducer,
-  data: dataReducer,
-  collection: collectionReducer,
-});
-
 export const store = configureStore({
-  reducer: rootReducer,
+  reducer: {
+    auth: authReducer,
+    data: dataReducer,
+    collection: collectionReducer,
+    image: imageReducer,
+  },
   preloadedState: loadState(),
-  middleware: getDefaultMiddleware =>
+  middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(persistMiddleware),
 });
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

@@ -1,5 +1,0 @@
-### GitHub Auth Flow
-GET http://localhost:8000/auth/github
-
-### GitHub Callback (This is mostly for documentation as it's handled by GitHub)
-GET http://localhost:8000/auth/github/callback?code=sample_code 

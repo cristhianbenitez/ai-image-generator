@@ -1,15 +1,11 @@
 import { API_ENDPOINTS } from '@config/api';
 import type { FormData } from '@types';
-import { imageUtils } from '@utils/imageUtils';
+import { apiRequest } from '@utils/api';
+
+const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
 
 export const imageService = {
   generateImage: async (formData: FormData): Promise<Blob> => {
-    const coloredPrompt = imageUtils.createColoredPrompt(
-      formData.prompt,
-      formData.color,
-    );
-    const { width, height } = imageUtils.parseResolution(formData.resolution);
-
     const response = await fetch(API_ENDPOINTS.SEGMIND, {
       method: 'POST',
       headers: {
@@ -17,20 +13,18 @@ export const imageService = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        prompt: coloredPrompt,
+        prompt: formData.prompt,
         negative_prompt: formData.negativePrompt,
         guidance_scale: formData.guidance,
         seed: formData.seed,
-        img_width: width,
-        img_height: height,
+        img_width: 1024,
+        img_height: 1024,
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(
-        `API Error: ${response.status} - ${JSON.stringify(errorData)}`,
-      );
+      throw new Error(`API Error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
 
     return response.blob();
@@ -39,18 +33,26 @@ export const imageService = {
   saveImageToHistory: async (
     userId: number,
     formData: FormData,
-    imageData: string,
+    imageUrl: string,
   ): Promise<void> => {
     try {
-      const response = await fetch(API_ENDPOINTS.IMAGES, {
+      // Convert blob URL to base64
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      if (blob.size > MAX_IMAGE_SIZE) {
+        throw new Error(`Image size (${(blob.size / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size (50MB)`);
+      }
+
+      // Convert blob to base64
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+
+      await apiRequest(API_ENDPOINTS.IMAGES, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Origin: window.location.origin,
-        },
-        credentials: 'include',
-        mode: 'cors',
         body: JSON.stringify({
           userId,
           prompt: formData.prompt,
@@ -59,23 +61,11 @@ export const imageService = {
           resolution: formData.resolution,
           guidance: formData.guidance,
           seed: formData.seed,
-          imageUrl: imageData,
+          imageUrl: base64,
         }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(
-          `HTTP Error: ${response.status} ${response.statusText}${
-            errorData ? ` - ${JSON.stringify(errorData)}` : ''
-          }`,
-        );
-      }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      console.error('Failed to save image:', errorMessage);
-      throw error;
+      throw new Error(`Failed to save image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   },
 };
