@@ -55,13 +55,13 @@ export const Home = () => {
       );
     }
 
-    // Use the imported default image
-    const imageUrl = generatedImage || DefaultImage;
+    // Use the imported default image or the generated image
+    const currentImage = generatedImage || DefaultImage;
 
     return (
       <>
         <img
-          src="/images/box-shapes.png"
+          src={currentImage}
           alt={formData.prompt || 'Preview area'}
           className="w-full h-full object-contain p-4 cursor-pointer"
           onClick={() => setIsModalOpen(true)}
@@ -69,7 +69,7 @@ export const Home = () => {
         {isModalOpen && (
           <ImageModal
             isOpen={isModalOpen}
-            imageUrl={imageUrl}
+            imageUrl={currentImage}
             onClose={() => setIsModalOpen(false)}
           />
         )}
