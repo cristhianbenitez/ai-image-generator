@@ -14,9 +14,7 @@ export const AuthCallback = () => {
 
     const processUserData = (rawData: string) => {
       try {
-        console.log('Processing raw data:', rawData); // Debug log
         const data = JSON.parse(decodeURIComponent(rawData));
-        console.log('Parsed data:', data); // Debug log
 
         if (!data || !data.user) {
           throw new Error('Invalid user data received');
@@ -26,7 +24,7 @@ export const AuthCallback = () => {
           id: data.user.id.toString(),
           name: data.user.name,
           avatar: data.user.avatar,
-          email: data.user.email,
+          email: data.user.email
         };
 
         // Store the token if present
@@ -40,18 +38,16 @@ export const AuthCallback = () => {
         redirectToHome();
       } catch (error) {
         console.error('Error processing user data:', error);
-        console.error('Raw data was:', rawData); // Debug log
         redirectToLogin();
       }
     };
 
     const handleCallback = () => {
-      console.log('URL on callback:', window.location.href); // Debug log
       const searchParams = new URLSearchParams(window.location.search);
       const data = searchParams.get('data');
 
       if (!data) {
-        console.error('No data parameter found in URL'); // Debug log
+        console.error('No data parameter found in URL');
         redirectToLogin();
         return;
       }

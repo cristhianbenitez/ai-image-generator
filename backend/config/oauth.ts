@@ -49,7 +49,8 @@ class OAuth2Client {
       const state = urlObj.searchParams.get('state');
 
       if (!code) throw new Error('No code found in URL');
-      if (!this.validateState(state)) throw new Error('Invalid state parameter');
+      if (!this.validateState(state))
+        throw new Error('Invalid state parameter');
 
       const params = new URLSearchParams({
         client_id: this.config.clientId,
@@ -61,7 +62,7 @@ class OAuth2Client {
       const response = await fetch(this.config.tokenUri, {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: params.toString()
@@ -71,7 +72,7 @@ class OAuth2Client {
         throw new Error(`GitHub API error: ${await response.text()}`);
       }
 
-      const data = await response.json() as TokenResponse;
+      const data = (await response.json()) as TokenResponse;
       return {
         accessToken: data.access_token,
         tokenType: data.token_type,
@@ -89,16 +90,16 @@ class OAuth2Client {
   }
 }
 
-// Use production callback URL
-const CALLBACK_URL = 'https://taanga-backend.vercel.app/auth/github/callback';
+// Use dynamic callback URL based on environment
+const CALLBACK_URL = `${getBackendUrl()}/auth/github/callback`;
 
 export const oauth2Client = new OAuth2Client({
   clientId: process.env.GITHUB_CLIENT_ID!,
   clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-  authorizationEndpointUri: "https://github.com/login/oauth/authorize",
-  tokenUri: "https://github.com/login/oauth/access_token",
+  authorizationEndpointUri: 'https://github.com/login/oauth/authorize',
+  tokenUri: 'https://github.com/login/oauth/access_token',
   redirectUri: CALLBACK_URL,
   defaults: {
-    scope: "read:user user:email",
-  },
+    scope: 'read:user user:email'
+  }
 });
