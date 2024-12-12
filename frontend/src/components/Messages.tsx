@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const NoAuthMessage = () => (
   <div className="flex flex-col items-center justify-center h-full">
     <p className="text-gray">Please sign in to view your messages</p>

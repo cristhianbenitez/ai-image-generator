@@ -1,4 +1,5 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
+
 import BookmarkIcon from '@assets/icons/bookmark.svg';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
@@ -6,19 +7,26 @@ import {
   removeFromCollection
 } from '@store/slices/collectionSlice';
 import type { GeneratedImage, User } from '@types';
-import { useEffect, useState } from 'react';
+import { RootState } from '@store';
 
 interface UserPostCardProps {
   post: GeneratedImage;
   onDelete?: () => void;
 }
 
-const BookmarkButton: FC<{
+interface BookmarkButtonProps {
   isBookmarked: boolean;
   isLoading: boolean;
   user: User | null;
   handleBookmark: () => void;
-}> = ({ isBookmarked, isLoading, user, handleBookmark }) => (
+}
+
+const BookmarkButton: FC<BookmarkButtonProps> = ({
+  isBookmarked,
+  isLoading,
+  user,
+  handleBookmark
+}) => (
   <button
     onClick={handleBookmark}
     disabled={isLoading || !user}
@@ -34,9 +42,9 @@ const BookmarkButton: FC<{
 
 export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector(state => state.auth);
+  const { user } = useAppSelector((state: RootState) => state.auth);
   const { images: collectionImages, loading } = useAppSelector(
-    state => state.collection
+    (state: RootState) => state.collection
   );
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -45,7 +53,9 @@ export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
 
   useEffect(() => {
     // Check if image is in collection
-    setIsBookmarked(collectionImages.some(img => img.id === id));
+    setIsBookmarked(
+      collectionImages.some((img: GeneratedImage) => img.id === id)
+    );
   }, [collectionImages, id]);
 
   const handleBookmark = async () => {

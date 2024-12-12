@@ -5,6 +5,7 @@ export interface GeneratedImage {
   color: string;
   resolution: string;
   guidance: number;
+  seed: number;
   imageUrl: string;
   createdAt: string;
   userId: number;

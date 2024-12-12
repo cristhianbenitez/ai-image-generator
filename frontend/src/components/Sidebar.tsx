@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+
 import CollectionIcon from '@assets/icons/collections.svg';
 import FeedIcon from '@assets/icons/feed.svg';
 import HistoryIcon from '@assets/icons/history.svg';
@@ -8,27 +10,26 @@ import LogoIcon from '@assets/logo.svg';
 
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { logout, openAuthModal } from '@store/slices/authSlice';
-import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 // TODO: Move to a constant file
 const PATHS = [
   {
     icon: HomeIcon,
-    path: '/',
+    path: '/'
   },
   {
     icon: FeedIcon,
-    path: '/feed',
+    path: '/feed'
   },
   {
     icon: HistoryIcon,
-    path: '/history',
+    path: '/history'
   },
   {
     icon: CollectionIcon,
-    path: '/collection',
-  },
+    path: '/collection'
+  }
 ];
 
 export const Sidebar = () => {

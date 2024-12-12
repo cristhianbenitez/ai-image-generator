@@ -1,6 +1,7 @@
+import React from 'react';
+
 import { useAppDispatch } from '@store/hooks';
 import { closeAuthModal, login } from '@store/slices/authSlice';
-import React from 'react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen }) => {
       alert(
         error instanceof Error
           ? error.message
-          : 'Failed to login. Please try again.',
+          : 'Failed to login. Please try again.'
       );
       setIsLoading(false);
     }

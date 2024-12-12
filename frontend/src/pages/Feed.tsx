@@ -1,4 +1,6 @@
-import { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
+import Masonry from 'react-masonry-css';
+
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { fetchAllData } from '@store/slices/dataSlice';
 import {
@@ -8,13 +10,12 @@ import {
   EmptyFeed,
   SEO
 } from '@components';
-import Masonry from 'react-masonry-css';
 import { BREAKPOINT_COLUMNS } from '@constants';
 
 export const Feed = () => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
-  const { allImages, loading, error } = useAppSelector((state) => state.data);
+  const { user } = useAppSelector(state => state.auth);
+  const { allImages, loading, error } = useAppSelector(state => state.data);
 
   useEffect(() => {
     if (user?.id) {
@@ -46,7 +47,7 @@ export const Feed = () => {
             className="flex w-full gap-6 pb-10"
             columnClassName="flex flex-col gap-6"
           >
-            {allImages.map((image) => (
+            {allImages.map(image => (
               <UserPostCard key={image.id} post={image} />
             ))}
           </Masonry>

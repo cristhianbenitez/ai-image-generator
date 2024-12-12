@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const prisma = new PrismaClient();
-const BASE_URL = process.env.VITE_FRONTEND_URL || 'http://localhost:5173';
+const BASE_URL = process.env.VITE_APP_URL || 'http://localhost:5173';
 
 interface SitemapUrl {
   loc: string;

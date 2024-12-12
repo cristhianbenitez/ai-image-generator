@@ -50,7 +50,7 @@ textarea.form-input {
   resize: none;
   overflow: hidden;
   line-height: 1.5;
-  writing-mode: horizontal-tb !important;
+  writing-mode: horizontal-tb;
 }
 
 @supports (-webkit-appearance: none) {

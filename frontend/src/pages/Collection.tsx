@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { fetchUserCollection } from '@store/slices/collectionSlice';
 import {
@@ -12,9 +13,9 @@ import {
 
 export const Collection = () => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector(state => state.auth);
   const { images, loading, error, isInitialized } = useAppSelector(
-    (state) => state.collection
+    state => state.collection
   );
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export const Collection = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Your Collection</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {images.map((image) => (
+          {images.map(image => (
             <UserPostCard key={image.id} post={image} />
           ))}
         </div>

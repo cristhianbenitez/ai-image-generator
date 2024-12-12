@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface ImageModalProps {
   isOpen: boolean;
   imageUrl: string;
@@ -7,7 +9,7 @@ interface ImageModalProps {
 export const ImageModal: React.FC<ImageModalProps> = ({
   isOpen,
   imageUrl,
-  onClose,
+  onClose
 }) => {
   if (!isOpen) return null;
 

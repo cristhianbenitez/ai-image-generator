@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
   EmptyHistory,
   ErrorMessage,
@@ -47,7 +49,7 @@ const HistoryItem = ({ image }: { image: GeneratedImage }) => (
       </div>
       <div>
         <h3 className="text-gray text-label mb-2">Seed</h3>
-        <p className="text-white">{image.seed}</p>
+        <p className="text-white">{image?.seed}</p>
       </div>
     </div>
   </article>

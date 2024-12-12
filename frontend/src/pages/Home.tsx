@@ -1,16 +1,15 @@
+import React, { FormEvent, useState } from 'react';
+
 import DefaultImage from '@assets/images/box-shapes.png';
-import { ImageGeneratorForm } from '@components/ImageGeneratorForm';
-import { ImageModal } from '@components/ImageModal';
+import { ImageGeneratorForm, ImageModal, SEO } from '@components';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { handleImageGeneration, setFormData } from '@store/slices/imageSlice';
-import { FormEvent, useState } from 'react';
-import { SEO } from '@components';
 
 export const Home = () => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector(state => state.auth);
   const { generatedImage, status, error, formData } = useAppSelector(
-    (state) => state.image
+    state => state.image
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -25,6 +24,7 @@ export const Home = () => {
       );
     } catch (error) {
       // Error will be handled by the image slice
+      console.error(error);
     }
   };
 
@@ -45,7 +45,6 @@ export const Home = () => {
             formData={formData}
             onChange={handleFormChange}
             onSubmit={handleSubmit}
-            isLoading={status === 'loading'}
           />
 
           <div className="max-w-[511px] w-full h-[511px] bg-darkAlt rounded-lg flex items-center justify-center relative">

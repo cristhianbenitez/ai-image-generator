@@ -1,7 +1,8 @@
+import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { useAppDispatch } from '@store/hooks';
 import { setUserAndFetchData, closeAuthModal } from '@store/slices/authSlice';
-import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export const AuthCallback = () => {
   const navigate = useNavigate();

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
@@ -12,22 +13,31 @@ interface SEOProps {
 }
 
 export const SEO = ({
-  title = 'Ta\'anga - AI Image Generator | Create Unique AI Art',
-  description = 'Create stunning AI-generated artwork with Ta\'anga. Transform your ideas into beautiful images using advanced AI technology.',
-  keywords = 'AI art, image generator, artificial intelligence art, AI artwork, text to image, creative AI, digital art, Ta\'anga',
+  title = "Ta'anga - AI Image Generator | Create Unique AI Art",
+  description = "Create stunning AI-generated artwork with Ta'anga. Transform your ideas into beautiful images using advanced AI technology.",
+  keywords = "AI art, image generator, artificial intelligence art, AI artwork, text to image, creative AI, digital art, Ta'anga",
   canonicalUrl = window.location.href,
   imageUrl = '/og-image.jpg',
   type = 'website',
   author,
-  datePublished,
+  datePublished
 }: SEOProps) => {
   const baseUrl = import.meta.env.VITE_FRONTEND_URL || '';
-  const fullCanonicalUrl = canonicalUrl.startsWith('http') ? canonicalUrl : `${baseUrl}${canonicalUrl}`;
-  const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${baseUrl}${imageUrl}`;
+  const fullCanonicalUrl = canonicalUrl.startsWith('http')
+    ? canonicalUrl
+    : `${baseUrl}${canonicalUrl}`;
+  const fullImageUrl = imageUrl.startsWith('http')
+    ? imageUrl
+    : `${baseUrl}${imageUrl}`;
 
   const structuredData = {
     '@context': 'https://schema.org',
-    '@type': type === 'website' ? 'WebSite' : type === 'article' ? 'Article' : 'WebPage',
+    '@type':
+      type === 'website'
+        ? 'WebSite'
+        : type === 'article'
+          ? 'Article'
+          : 'WebPage',
     name: title,
     description,
     url: fullCanonicalUrl,
@@ -35,21 +45,21 @@ export const SEO = ({
     ...(author && {
       author: {
         '@type': 'Person',
-        name: author,
-      },
+        name: author
+      }
     }),
     ...(datePublished && {
       datePublished,
-      dateModified: new Date().toISOString(),
+      dateModified: new Date().toISOString()
     }),
     publisher: {
       '@type': 'Organization',
-      name: 'Ta\'anga',
+      name: "Ta'anga",
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/logo.png`,
-      },
-    },
+        url: `${baseUrl}/logo.png`
+      }
+    }
   };
 
   return (

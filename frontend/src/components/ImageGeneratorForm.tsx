@@ -1,14 +1,10 @@
+import React, { FormEvent, useRef } from 'react';
+
 import CloseIcon from '@assets/icons/close.svg';
 import GenerateIcon from '@assets/icons/home.svg';
-import {
-  COLORS,
-  COLORSHEX,
-  GUIDANCE_SCALE,
-  RESOLUTIONS,
-} from '@constants';
+import { COLORS, COLORSHEX, GUIDANCE_SCALE, RESOLUTIONS } from '@constants';
 import { useAutoResize } from '@hooks';
 import type { FormData } from '@types';
-import { FormEvent, useRef } from 'react';
 
 type ImageGeneratorFormProps = {
   formData: FormData;
@@ -19,7 +15,7 @@ type ImageGeneratorFormProps = {
 export const ImageGeneratorForm = ({
   formData,
   onChange,
-  onSubmit,
+  onSubmit
 }: ImageGeneratorFormProps) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   useAutoResize(textAreaRef);
@@ -81,7 +77,7 @@ export const ImageGeneratorForm = ({
                 onChange={e =>
                   onChange({
                     ...formData,
-                    color: e.target.value as (typeof COLORS)[number],
+                    color: e.target.value as (typeof COLORS)[number]
                   })
                 }
                 className="sr-only"
@@ -125,7 +121,7 @@ export const ImageGeneratorForm = ({
                 onChange={e =>
                   onChange({
                     ...formData,
-                    resolution: e.target.value as (typeof RESOLUTIONS)[number],
+                    resolution: e.target.value as (typeof RESOLUTIONS)[number]
                   })
                 }
                 className="sr-only"
@@ -149,7 +145,7 @@ export const ImageGeneratorForm = ({
           onChange={e =>
             onChange({
               ...formData,
-              guidance: parseFloat(e.target.value),
+              guidance: parseFloat(e.target.value)
             })
           }
           className="w-full accent-purple"
