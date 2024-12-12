@@ -3,11 +3,8 @@ import { RootState } from '../index';
 
 // Actions that should trigger state persistence
 const PERSIST_ACTIONS = [
-  'auth/',
-  'collection/fetchUserCollection/fulfilled',
-  'collection/saveToCollection/fulfilled',
-  'collection/removeFromCollection/fulfilled',
-  'data/fetchAllData/fulfilled',
+  'auth/setUser',
+  'auth/logout',
 ];
 
 export const persistMiddleware: Middleware<{}, RootState> = store => next => action => {
@@ -15,23 +12,18 @@ export const persistMiddleware: Middleware<{}, RootState> = store => next => act
 
   // Check if the action should trigger persistence
   const shouldPersist = PERSIST_ACTIONS.some(actionType =>
-    action.type.startsWith(actionType)
+    action.type === actionType
   );
 
   if (shouldPersist) {
     const state = store.getState();
     const persistedState = {
-      auth: state.auth,
-      collection: {
-        ...state.collection,
-        loading: false,
-        error: null,
-      },
-      data: {
-        ...state.data,
-        loading: false,
-        error: null,
-      },
+      auth: {
+        user: state.auth.user,
+        isAuthenticated: state.auth.isAuthenticated,
+        isAuthModalOpen: false,
+        isLoading: false,
+      }
     };
 
     try {
