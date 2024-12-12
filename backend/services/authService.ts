@@ -13,12 +13,6 @@ interface GithubUser {
   avatar_url: string;
 }
 
-interface GithubEmail {
-  email: string;
-  primary: boolean;
-  verified: boolean;
-}
-
 export class AuthService {
   async getGithubAuthUrl() {
     return oauth2Client.code.getAuthorizationUri();
@@ -28,12 +22,11 @@ export class AuthService {
     // Get GitHub token
     const token = await oauth2Client.code.getToken(url);
 
-    // Get user info and emails
+    // Get user info
     const userInfo = await this.getGithubUserInfo(token.accessToken);
-    const emails = await this.getGithubUserEmails(token.accessToken);
 
     // Validate required fields
-    if (!userInfo.id || !emails[0]?.email) {
+    if (!userInfo.id) {
       throw new Error('Invalid user data from GitHub');
     }
 
@@ -41,8 +34,7 @@ export class AuthService {
     const user = await this.findOrCreateUser({
       name: userInfo.name || userInfo.login,
       githubId: userInfo.id.toString(),
-      avatar: userInfo.avatar_url,
-      email: emails[0].email,
+      avatar: userInfo.avatar_url
     });
 
     // Generate JWT
@@ -75,27 +67,10 @@ export class AuthService {
     return data as GithubUser;
   }
 
-  private async getGithubUserEmails(accessToken: string): Promise<GithubEmail[]> {
-    const response = await fetch('https://api.github.com/user/emails', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${await response.text()}`);
-    }
-
-    const data = await response.json();
-    return data as GithubEmail[];
-  }
-
   private async findOrCreateUser(userData: {
     name: string;
     githubId: string;
     avatar: string;
-    email: string;
   }) {
     let user = await prisma.user.findUnique({
       where: { githubId: userData.githubId },
@@ -112,7 +87,6 @@ export class AuthService {
         where: { id: user.id },
         data: {
           avatar: userData.avatar,
-          email: userData.email,
           name: userData.name,
         },
       });
@@ -138,7 +112,7 @@ export class AuthService {
   async findOrCreateTestUser() {
     const testUser = await prisma.user.findFirst({
       where: {
-        email: 'test@example.com'
+        githubId: 'test123'
       }
     });
 
@@ -149,7 +123,6 @@ export class AuthService {
     return prisma.user.create({
       data: {
         name: 'Test User',
-        email: 'test@example.com',
         githubId: 'test123',
         avatar: 'https://github.com/identicons/test.png'
       }

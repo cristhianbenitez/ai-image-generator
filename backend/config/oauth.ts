@@ -100,6 +100,6 @@ export const oauth2Client = new OAuth2Client({
   tokenUri: 'https://github.com/login/oauth/access_token',
   redirectUri: CALLBACK_URL,
   defaults: {
-    scope: 'read:user user:email'
+    scope: 'read:user'
   }
 });

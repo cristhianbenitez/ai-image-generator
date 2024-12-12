@@ -13,7 +13,6 @@ datasource db {
 model User {
   id             Int              @id @default(autoincrement())
   name           String?
-  email          String           @unique
   githubId       String           @unique
   avatar         String?
   generatedImages GeneratedImage[]

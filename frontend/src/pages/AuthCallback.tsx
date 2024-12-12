@@ -23,8 +23,7 @@ export const AuthCallback = () => {
         const userToSet = {
           id: data.user.id.toString(),
           name: data.user.name,
-          avatar: data.user.avatar,
-          email: data.user.email
+          avatar: data.user.avatar
         };
 
         // Store the token if present
