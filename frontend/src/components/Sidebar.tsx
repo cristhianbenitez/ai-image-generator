@@ -52,7 +52,6 @@ export const Sidebar = () => {
         {PATHS.map(({ icon, path }) => (
           <Link
             key={path}
-            role="navigation"
             className={`navigation-button ${isInCurrentPathStyle(path)}`}
             to={path}
           >

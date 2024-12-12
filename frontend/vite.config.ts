@@ -10,6 +10,8 @@ export default defineConfig({
     compression({
       algorithm: 'brotli',
       ext: '.br',
+      threshold: 512,
+      compressionOptions: { level: 11 },
     }),
     compression({
       algorithm: 'gzip',
@@ -35,9 +37,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          react: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          redux: ['@reduxjs/toolkit', 'react-redux'],
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'redux-vendor': ['@reduxjs/toolkit', 'react-redux'],
+          'ui-vendor': ['react-helmet-async', 'react-masonry-css'],
         },
       },
     },
@@ -46,7 +48,22 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.trace'],
       },
+      mangle: {
+        safari10: true,
+      },
+      format: {
+        comments: false,
+      },
+    },
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 1000,
+    sourcemap: false,
+  },
+  server: {
+    headers: {
+      'Cache-Control': 'public, max-age=31536000',
     },
   },
 });

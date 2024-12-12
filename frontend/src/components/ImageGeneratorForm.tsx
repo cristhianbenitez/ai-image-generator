@@ -24,42 +24,57 @@ export const ImageGeneratorForm = ({
     <form
       onSubmit={onSubmit}
       className="flex flex-col flex-start gap-8 max-w-[511px] w-full"
+      aria-label="Image Generation Form"
     >
       {/* Prompt */}
-      <fieldset className="form-group">
-        <legend className="text-gray text-label font-semibold">Prompt</legend>
+      <div className="form-group" role="group" aria-labelledby="prompt-label">
+        <label id="prompt-label" className="text-gray text-label font-semibold">
+          Prompt
+          <span className="text-red ml-1" aria-label="required">*</span>
+        </label>
         <textarea
           ref={textAreaRef}
+          id="prompt"
           value={formData.prompt}
           onChange={e => onChange({ ...formData, prompt: e.target.value })}
           placeholder="Enter the prompt"
           className="form-input overflow-hidden"
           required
+          aria-required="true"
+          aria-describedby="prompt-description"
         />
-      </fieldset>
+        <span id="prompt-description" className="sr-only">
+          Enter a description of the image you want to generate
+        </span>
+      </div>
 
       {/* Negative prompt */}
-      <fieldset className="form-group">
-        <legend className="text-gray text-label font-semibold">
+      <div className="form-group" role="group" aria-labelledby="negative-prompt-label">
+        <label id="negative-prompt-label" className="text-gray text-label font-semibold">
           Negative prompt (Optional)
-        </legend>
+        </label>
         <input
           type="text"
+          id="negative-prompt"
           value={formData.negativePrompt}
           onChange={e =>
             onChange({ ...formData, negativePrompt: e.target.value })
           }
           placeholder="Enter negative prompt"
           className="form-input min-h-[42px]"
+          aria-describedby="negative-prompt-description"
         />
-      </fieldset>
+        <span id="negative-prompt-description" className="sr-only">
+          Enter what you don't want to see in the generated image
+        </span>
+      </div>
 
       {/* Colors */}
-      <fieldset className="form-group">
-        <legend className="text-gray text-label font-semibold mb-3">
+      <div className="form-group" role="group" aria-labelledby="colors-label">
+        <label id="colors-label" className="text-gray text-label font-semibold mb-3">
           Colors
-        </legend>
-        <div className="flex flex-wrap gap-2">
+        </label>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Color selection">
           {COLORS.map(color => (
             <label
               key={color}
@@ -81,10 +96,12 @@ export const ImageGeneratorForm = ({
                   })
                 }
                 className="sr-only"
+                aria-label={color}
               />
               <span
                 className="block w-full h-full rounded-full"
                 style={{ backgroundColor: COLORSHEX[color] }}
+                aria-hidden="true"
               />
             </label>
           ))}
@@ -92,18 +109,23 @@ export const ImageGeneratorForm = ({
             type="button"
             onClick={() => onChange({ ...formData, color: '' })}
             className="w-8 h-8 rounded-full border border-darkAlt2 flex items-center justify-center cursor-pointer"
+            aria-label="Clear color selection"
           >
-            <img src={CloseIcon} alt="Clear color" />
+            <img src={CloseIcon} alt="" aria-hidden="true" />
           </button>
         </div>
-      </fieldset>
+      </div>
 
       {/* Resolution */}
-      <fieldset className="form-group">
-        <legend className="text-gray text-label font-semibold mb-3">
+      <div className="form-group" role="group" aria-labelledby="resolution-label">
+        <label id="resolution-label" className="text-gray text-label font-semibold mb-3">
           Resolution
-        </legend>
-        <div className="flex flex-wrap items-center gap-3">
+        </label>
+        <div
+          className="flex flex-wrap items-center gap-3"
+          role="radiogroup"
+          aria-label="Resolution selection"
+        >
           {RESOLUTIONS.map(resolution => (
             <label
               key={resolution}
@@ -125,19 +147,21 @@ export const ImageGeneratorForm = ({
                   })
                 }
                 className="sr-only"
+                aria-label={`Resolution ${resolution}`}
               />
               <span className="text-small font-normal">{resolution}</span>
             </label>
           ))}
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset className="form-group">
-        <legend className="text-gray text-label font-semibold">
+      <div className="form-group" role="group" aria-labelledby="guidance-label">
+        <label id="guidance-label" className="text-gray text-label font-semibold">
           Guidance Scale ({formData.guidance.toFixed(1)})
-        </legend>
+        </label>
         <input
           type="range"
+          id="guidance"
           min={GUIDANCE_SCALE.MIN}
           max={GUIDANCE_SCALE.MAX}
           step={GUIDANCE_SCALE.STEP}
@@ -149,19 +173,22 @@ export const ImageGeneratorForm = ({
             })
           }
           className="w-full accent-purple"
+          aria-label={`Guidance scale: ${formData.guidance.toFixed(1)}`}
+          aria-describedby="guidance-description"
         />
         <div className="flex justify-between text-xs text-gray mt-1">
-          <span>Less Creative (1.0)</span>
-          <span>More Creative (15.0)</span>
+          <span id="guidance-description">Less Creative</span>
+          <span>More Creative</span>
         </div>
-      </fieldset>
+      </div>
 
       {/* Generate button */}
       <button
         type="submit"
         className="flex items-center justify-center gap-2 bg-purple hover:bg-purple/90 text-white py-3 px-4 rounded-lg transition-colors"
+        aria-label="Generate image with current settings"
       >
-        <img src={GenerateIcon} alt="" className="w-5 h-5" />
+        <img src={GenerateIcon} alt="" aria-hidden="true" className="w-5 h-5" />
         Generate Image
       </button>
     </form>

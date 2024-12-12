@@ -24,24 +24,22 @@ export const Collection = () => {
     }
   }, [dispatch, user?.id, isInitialized]);
 
-  if (!user) return <NoAuthMessage />;
-  if (loading && !isInitialized) return <LoadingSpinner />;
-  if (error) return <ErrorMessage message={error} />;
-  if (!images.length)
-    return (
+  let content;
+  if (!user) {
+    content = <NoAuthMessage />;
+  } else if (loading && !isInitialized) {
+    content = <LoadingSpinner />;
+  } else if (error) {
+    content = <ErrorMessage message={error} />;
+  } else if (!images.length) {
+    content = (
       <EmptyFeed
         title="Your collection is empty"
         description="Start saving images to your collection!"
       />
     );
-
-  return (
-    <>
-      <SEO
-        title="Collection | Ta'anga"
-        description="View and manage your saved AI-generated artwork collection. Organize and revisit your favorite pieces created with Ta'anga."
-        keywords="AI art collection, saved artwork, digital art portfolio, Ta'anga collection"
-      />
+  } else {
+    content = (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Your Collection</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -50,6 +48,17 @@ export const Collection = () => {
           ))}
         </div>
       </div>
+    );
+  }
+
+  return (
+    <>
+      <SEO
+        title="Collection | Ta'anga"
+        description="View and manage your saved AI-generated artwork collection. Organize and revisit your favorite pieces created with Ta'anga."
+        keywords="AI art collection, saved artwork, digital art portfolio, Ta'anga collection"
+      />
+      {content}
     </>
   );
 };

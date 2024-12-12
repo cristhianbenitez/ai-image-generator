@@ -1,9 +1,11 @@
 import React, { FormEvent, useState } from 'react';
 
-import DefaultImage from '@assets/images/box-shapes.png';
 import { ImageGeneratorForm, ImageModal, SEO } from '@components';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { handleImageGeneration, setFormData } from '@store/slices/imageSlice';
+
+// Import the image directly for type checking
+import DefaultImage from '@assets/images/box-shapes.png';
 
 export const Home = () => {
   const dispatch = useAppDispatch();
@@ -23,13 +25,56 @@ export const Home = () => {
         )
       );
     } catch (error) {
-      // Error will be handled by the image slice
       console.error(error);
     }
   };
 
   const handleFormChange = (newFormData: typeof formData) => {
     dispatch(setFormData(newFormData));
+  };
+
+  // Use regular img for loading state to avoid optimization overhead
+  const renderContent = () => {
+    if (status === 'loading') {
+      return (
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 border-t-4 border-purple border-solid rounded-full animate-spin" />
+          <p className="text-gray text-sm">
+            Generating image... This may take a minute
+          </p>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="text-red-500 text-center p-4">
+          <p>Error: {error}</p>
+          <p className="text-sm mt-2">Please try again</p>
+        </div>
+      );
+    }
+
+    // Use the imported default image
+    const imageUrl = generatedImage || DefaultImage;
+
+    return (
+      <>
+        <img
+          src="/images/box-shapes.png"
+          alt={formData.prompt || 'Preview area'}
+          className="w-full h-full object-contain p-4 cursor-pointer"
+          onClick={() => setIsModalOpen(true)}
+        />
+        {isModalOpen && (
+          <ImageModal
+            isOpen={isModalOpen}
+            imageUrl={imageUrl}
+            onClose={() => setIsModalOpen(false)}
+          />
+        )}
+      </>
+    );
   };
 
   return (
@@ -48,35 +93,7 @@ export const Home = () => {
           />
 
           <div className="max-w-[511px] w-full h-[511px] bg-darkAlt rounded-lg flex items-center justify-center relative">
-            {status === 'loading' ? (
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-16 h-16 border-t-4 border-purple border-solid rounded-full animate-spin" />
-                <p className="text-gray text-sm">
-                  Generating image... This may take a minute
-                </p>
-              </div>
-            ) : error ? (
-              <div className="text-red-500 text-center p-4">
-                <p>Error: {error}</p>
-                <p className="text-sm mt-2">Please try again</p>
-              </div>
-            ) : (
-              <>
-                <img
-                  src={generatedImage || DefaultImage}
-                  alt={formData.prompt || 'Preview area'}
-                  className="w-full h-full object-contain p-4 cursor-pointer"
-                  onClick={() => setIsModalOpen(true)}
-                />
-                {isModalOpen && (
-                  <ImageModal
-                    isOpen={isModalOpen}
-                    imageUrl={generatedImage || DefaultImage}
-                    onClose={() => setIsModalOpen(false)}
-                  />
-                )}
-              </>
-            )}
+            {renderContent()}
           </div>
         </div>
       </section>

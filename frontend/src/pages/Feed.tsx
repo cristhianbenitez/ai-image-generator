@@ -23,23 +23,20 @@ export const Feed = () => {
     }
   }, [dispatch, user?.id]);
 
-  if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage message={error} />;
-  if (!allImages.length)
-    return (
+  let content;
+  if (loading) {
+    content = <LoadingSpinner />;
+  } else if (error) {
+    content = <ErrorMessage message={error} />;
+  } else if (!allImages.length) {
+    content = (
       <EmptyFeed
         title="No images yet"
         description="Be the first to create something amazing!"
       />
     );
-
-  return (
-    <>
-      <SEO
-        title="Explore | Ta'anga"
-        description="Discover amazing AI-generated artwork created by the Ta'anga community. Get inspired by unique creations and join our creative community."
-        keywords="AI art gallery, community artwork, AI image showcase, digital art community, Ta'anga explore"
-      />
+  } else {
+    content = (
       <div className="w-full mx-auto px-4 py-8">
         <Suspense fallback={<LoadingSpinner />}>
           <Masonry
@@ -53,6 +50,17 @@ export const Feed = () => {
           </Masonry>
         </Suspense>
       </div>
+    );
+  }
+
+  return (
+    <>
+      <SEO
+        title="Explore | Ta'anga"
+        description="Discover amazing AI-generated artwork created by the Ta'anga community. Get inspired by unique creations and join our creative community."
+        keywords="AI art gallery, community artwork, AI image showcase, digital art community, Ta'anga explore"
+      />
+      {content}
     </>
   );
 };

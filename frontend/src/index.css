@@ -39,6 +39,9 @@
 
 /* Custom styles */
 
+.form-group {
+  @apply gap-3;
+}
 .form-group > legend {
   @apply text-label font-semibold mb-3;
 }

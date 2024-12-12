@@ -63,8 +63,12 @@ export const SEO = ({
   };
 
   return (
-    <Helmet>
-      {/* Primary Meta Tags */}
+    <Helmet
+      key={title}
+      prioritizeSeoTags={true}
+      defaultTitle="Ta'anga"
+      titleTemplate="%s"
+    >
       <title>{title}</title>
       <meta name="title" content={title} />
       <meta name="description" content={description} />

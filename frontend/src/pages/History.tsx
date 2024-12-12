@@ -63,17 +63,15 @@ export const History = () => {
     error
   } = useAppSelector(state => state.data);
 
-  if (!user) return <NoAuthMessage />;
-  if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage message={error} />;
-
-  return (
-    <>
-      <SEO
-        title="History | Ta'anga"
-        description="View your AI art generation history on Ta'anga. Track and revisit all the unique pieces you've created using our AI image generator."
-        keywords="AI art history, image generation history, creation timeline, Ta'anga history"
-      />
+  let content;
+  if (!user) {
+    content = <NoAuthMessage />;
+  } else if (loading) {
+    content = <LoadingSpinner />;
+  } else if (error) {
+    content = <ErrorMessage message={error} />;
+  } else {
+    content = (
       <section className="w-full max-w-[1100px]">
         <h1 className="text-2xl font-normal mb-8">Generation History</h1>
         <div className="flex flex-col gap-10 w-full">
@@ -84,6 +82,17 @@ export const History = () => {
           )}
         </div>
       </section>
+    );
+  }
+
+  return (
+    <>
+      <SEO
+        title="History | Ta'anga"
+        description="View your AI art generation history on Ta'anga. Track and revisit all the unique pieces you've created using our AI image generator."
+        keywords="AI art history, image generation history, creation timeline, Ta'anga history"
+      />
+      {content}
     </>
   );
 };
