@@ -45,8 +45,20 @@
 .form-group > legend {
   @apply text-label font-semibold mb-3;
 }
+.form-slider {
+  @apply w-full h-2 bg-darkAlt rounded appearance-none outline-none;
+}
 
-/* Support for auto resize textarea */
+.form-slider::-webkit-slider-thumb,
+.form-slider::-moz-range-thumb {
+  @apply w-5 h-5 bg-purple rounded-full cursor-pointer appearance-none shadow-lg shadow-purple/60 transition-all duration-200;
+}
+
+.form-slider::-webkit-slider-thumb:hover,
+.form-slider::-moz-range-thumb:hover {
+  @apply shadow-xl shadow-purple/80;
+}
+
 textarea.form-input {
   @apply block;
   height: 42px;
