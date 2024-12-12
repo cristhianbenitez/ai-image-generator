@@ -1,8 +1,8 @@
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useState, useEffect } from 'react';
 
 import { ImageGeneratorForm, ImageModal, SEO } from '@components';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { handleImageGeneration, setFormData } from '@store/slices/imageSlice';
+import { handleImageGeneration, setFormData, resetForm } from '@store/slices/imageSlice';
 
 // Import the image directly for type checking
 import DefaultImage from '@assets/images/box-shapes.png';
@@ -14,6 +14,13 @@ export const Home = () => {
     state => state.image
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(resetForm());
+    };
+  }, [dispatch]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

@@ -10,6 +10,7 @@ interface ImageState {
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   formData: FormData;
+  currentBlobUrl: string | null;
 }
 
 const initialFormData: FormData = {
@@ -26,11 +27,19 @@ const initialState: ImageState = {
   status: 'idle',
   error: null,
   formData: initialFormData,
+  currentBlobUrl: null,
+};
+
+// Helper function to revoke the old blob URL
+const revokeBlobUrl = (url: string | null) => {
+  if (url && url.startsWith('blob:')) {
+    URL.revokeObjectURL(url);
+  }
 };
 
 export const generateImage = createAsyncThunk(
   'image/generateImage',
-  async (formData: FormData, { rejectWithValue }) => {
+  async (formData: FormData, { rejectWithValue, getState }) => {
     try {
       const imageBlob = await imageService.generateImage(formData);
       const imageUrl = URL.createObjectURL(imageBlob);
@@ -87,8 +96,13 @@ const imageSlice = createSlice({
       state.formData = action.payload;
     },
     resetForm: (state) => {
+      // Revoke the current blob URL if it exists
+      if (state.currentBlobUrl) {
+        revokeBlobUrl(state.currentBlobUrl);
+      }
       state.formData = initialFormData;
       state.generatedImage = null;
+      state.currentBlobUrl = null;
       state.status = 'idle';
       state.error = null;
     },
@@ -103,8 +117,13 @@ const imageSlice = createSlice({
         state.error = null;
       })
       .addCase(generateImage.fulfilled, (state, action) => {
+        // Revoke the old blob URL if it exists
+        if (state.currentBlobUrl) {
+          revokeBlobUrl(state.currentBlobUrl);
+        }
         state.status = 'succeeded';
         state.generatedImage = action.payload;
+        state.currentBlobUrl = action.payload;
         state.error = null;
       })
       .addCase(generateImage.rejected, (state, action) => {
