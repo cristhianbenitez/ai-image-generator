@@ -1,6 +1,7 @@
 import { API_ENDPOINTS } from '@config/api';
 import type { FormData } from '@types';
 import { apiRequest } from '@utils/api';
+import { collectionService } from './collectionService';
 
 const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
 
@@ -68,4 +69,22 @@ export const imageService = {
       throw new Error(`Failed to save image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   },
+
+  toggleBookmark: async (userId: number, imageId: number): Promise<void> => {
+    try {
+      // First, get the user's collection to check if the image is already bookmarked
+      const collection = await collectionService.getUserCollection(userId);
+      const isBookmarked = collection.images?.some(img => img.id === imageId);
+
+      if (isBookmarked) {
+        // If already bookmarked, remove it
+        await collectionService.removeFromCollection(userId, imageId);
+      } else {
+        // If not bookmarked, add it
+        await collectionService.saveToCollection(userId, imageId);
+      }
+    } catch (error) {
+      throw new Error(`Failed to toggle bookmark: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
 };

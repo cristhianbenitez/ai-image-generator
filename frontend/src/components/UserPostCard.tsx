@@ -1,11 +1,8 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC } from 'react';
 
 import BookmarkIcon from '@assets/icons/bookmark.svg';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import {
-  saveToCollection,
-  removeFromCollection
-} from '@store/slices/collectionSlice';
+import { toggleBookmark } from '@store/slices/imageSlice';
 import type { GeneratedImage, User } from '@types';
 import { RootState } from '@store';
 
@@ -43,20 +40,11 @@ const BookmarkButton: FC<BookmarkButtonProps> = ({
 export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state: RootState) => state.auth);
-  const { images: collectionImages, loading } = useAppSelector(
-    (state: RootState) => state.collection
+  const bookmarkStatus = useAppSelector(
+    (state: RootState) => state.image.bookmarkStatus[post.id]
   );
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   const { id, prompt, imageUrl } = post;
-
-  useEffect(() => {
-    // Check if image is in collection
-    setIsBookmarked(
-      collectionImages.some((img: GeneratedImage) => img.id === id)
-    );
-  }, [collectionImages, id]);
 
   const handleBookmark = async () => {
     if (!user?.id) {
@@ -64,29 +52,20 @@ export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
       return;
     }
 
-    setIsProcessing(true);
     try {
-      if (isBookmarked) {
-        const resultAction = await dispatch(
-          removeFromCollection({ userId: parseInt(user.id), imageId: id })
-        );
-        if (removeFromCollection.fulfilled.match(resultAction)) {
-          onDelete?.();
-        } else if (removeFromCollection.rejected.match(resultAction)) {
-          throw new Error(resultAction.error.message);
-        }
-      } else {
-        const resultAction = await dispatch(
-          saveToCollection({ userId: parseInt(user.id), imageId: id })
-        );
-        if (saveToCollection.rejected.match(resultAction)) {
-          throw new Error(resultAction.error.message);
-        }
+      await dispatch(
+        toggleBookmark({
+          imageId: id,
+          userId: parseInt(user.id)
+        })
+      ).unwrap();
+
+      // If this is being called from a collection view and the image was unbookmarked
+      if (onDelete && !bookmarkStatus?.isBookmarked) {
+        onDelete();
       }
     } catch (error) {
       console.error('Failed to handle bookmark:', error);
-    } finally {
-      setIsProcessing(false);
     }
   };
 
@@ -108,8 +87,8 @@ export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
             {user?.name}
           </span>
           <BookmarkButton
-            isBookmarked={isBookmarked}
-            isLoading={isProcessing || loading}
+            isBookmarked={bookmarkStatus?.isBookmarked || false}
+            isLoading={bookmarkStatus?.isLoading || false}
             user={user}
             handleBookmark={handleBookmark}
           />
