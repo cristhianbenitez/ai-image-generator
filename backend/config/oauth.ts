@@ -1,4 +1,10 @@
-import { config } from './env';
+import { getBackendUrl } from './env';
+
+interface TokenResponse {
+  access_token: string;
+  token_type: string;
+  scope: string;
+}
 
 class OAuth2Client {
   private config: {
@@ -65,7 +71,7 @@ class OAuth2Client {
         throw new Error(`GitHub API error: ${await response.text()}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as TokenResponse;
       return {
         accessToken: data.access_token,
         tokenType: data.token_type,
@@ -83,15 +89,15 @@ class OAuth2Client {
   }
 }
 
-// Use explicit callback URL to match GitHub OAuth App settings
-const CALLBACK_URL = 'http://localhost:8000/auth/github/callback';
+// Use dynamic callback URL based on environment
+const CALLBACK_URL = `${getBackendUrl()}/auth/github/callback`;
 
 export const oauth2Client = new OAuth2Client({
   clientId: process.env.GITHUB_CLIENT_ID!,
   clientSecret: process.env.GITHUB_CLIENT_SECRET!,
   authorizationEndpointUri: "https://github.com/login/oauth/authorize",
   tokenUri: "https://github.com/login/oauth/access_token",
-  redirectUri: CALLBACK_URL,  // Use explicit callback URL
+  redirectUri: CALLBACK_URL,
   defaults: {
     scope: "read:user user:email",
   },

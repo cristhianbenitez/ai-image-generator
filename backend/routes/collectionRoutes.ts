@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const router = Router();
 
 // Get user's collection
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = parseInt(req.params.userId);
     const collection = await prisma.collection.findUnique({
@@ -23,13 +23,14 @@ router.get('/:userId', async (req, res) => {
 
     // If no collection exists, return an empty collection object
     if (!collection) {
-      return res.json({
+      res.json({
         id: null,
         userId,
         images: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+      return;
     }
 
     res.json(collection);
@@ -40,13 +41,14 @@ router.get('/:userId', async (req, res) => {
 });
 
 // Create or update collection
-router.post('/:userId', async (req, res) => {
+router.post('/:userId', async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = parseInt(req.params.userId);
     const { imageId } = req.body;
 
     if (!imageId) {
-      return res.status(400).json({ error: 'Image ID is required' });
+      res.status(400).json({ error: 'Image ID is required' });
+      return;
     }
 
     // Use a transaction to ensure data consistency
@@ -95,7 +97,7 @@ router.post('/:userId', async (req, res) => {
 });
 
 // Remove image from collection
-router.delete('/:userId/images/:imageId', async (req, res) => {
+router.delete('/:userId/images/:imageId', async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = parseInt(req.params.userId);
     const imageId = parseInt(req.params.imageId);

@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const router = Router();
 
 // Get all images
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
 
@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get user's images
-router.get('/user/:userId', async (req, res) => {
+router.get('/user/:userId', async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = parseInt(req.params.userId);
     const images = await prisma.generatedImage.findMany({
@@ -46,18 +46,20 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 // Create new image
-router.post('/', async (req, res) => {
+router.post('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const { prompt, negativePrompt, color, resolution, guidance, seed, imageUrl, userId } = req.body;
 
     // Validate required fields
     if (!imageUrl || !userId) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
     }
 
     // Validate base64 image data
     if (!imageUrl.startsWith('data:image/')) {
-      return res.status(400).json({ error: 'Invalid image data format' });
+      res.status(400).json({ error: 'Invalid image data format' });
+      return;
     }
 
     const image = await prisma.generatedImage.create({
@@ -83,7 +85,7 @@ router.post('/', async (req, res) => {
 });
 
 // Delete image
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
     const imageId = parseInt(req.params.id);
     await prisma.generatedImage.delete({

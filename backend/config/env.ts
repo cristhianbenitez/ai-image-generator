@@ -3,12 +3,26 @@ import { config as dotenvConfig } from 'dotenv';
 // Load environment variables from .env file
 dotenvConfig();
 
-export const config = {
-  port: process.env.PORT || 8000,
-  frontendUrlLocal: process.env.VITE_FRONTEND_URL_LOCAL,
-  frontendUrl: process.env.VITE_FRONTEND_URL,
-  jwtSecret: process.env.JWT_SECRET,
-  // Add other environment variables as needed
+// Helper functions for URLs
+const getBackendUrl = () => {
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return process.env.VITE_BACKEND_URL || 'http://localhost:8000';
 };
 
+const getFrontendUrl = () => {
+  return process.env.VITE_FRONTEND_URL || 'http://localhost:5173';
+};
+
+export const config = {
+  port: process.env.PORT || 8000,
+  frontendUrl: getFrontendUrl(),
+  backendUrl: getBackendUrl(),
+  jwtSecret: process.env.JWT_SECRET,
+  getBackendUrl,
+  getFrontendUrl,
+};
+
+export { getBackendUrl, getFrontendUrl };
 export default config;

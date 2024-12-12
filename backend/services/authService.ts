@@ -6,6 +6,19 @@ const prisma = new PrismaClient({
   datasources: { db: { url: process.env.DATABASE_URL } },
 });
 
+interface GithubUser {
+  id: number;
+  name: string;
+  login: string;
+  avatar_url: string;
+}
+
+interface GithubEmail {
+  email: string;
+  primary: boolean;
+  verified: boolean;
+}
+
 export class AuthService {
   async getGithubAuthUrl() {
     return oauth2Client.code.getAuthorizationUri();
@@ -46,7 +59,7 @@ export class AuthService {
     };
   }
 
-  private async getGithubUserInfo(accessToken: string) {
+  private async getGithubUserInfo(accessToken: string): Promise<GithubUser> {
     const response = await fetch('https://api.github.com/user', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -58,10 +71,11 @@ export class AuthService {
       throw new Error(`GitHub API error: ${await response.text()}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data as GithubUser;
   }
 
-  private async getGithubUserEmails(accessToken: string) {
+  private async getGithubUserEmails(accessToken: string): Promise<GithubEmail[]> {
     const response = await fetch('https://api.github.com/user/emails', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -73,7 +87,8 @@ export class AuthService {
       throw new Error(`GitHub API error: ${await response.text()}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data as GithubEmail[];
   }
 
   private async findOrCreateUser(userData: {

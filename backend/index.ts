@@ -1,4 +1,4 @@
-import express, { Express } from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { router as authRoutes } from './routes/authRoutes';
@@ -41,13 +41,13 @@ app.use(
 app.options('*', cors());
 
 // Error handling for CORS and large payloads
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
   if (err.message === 'Not allowed by CORS') {
     res.status(403).json({
       error: 'CORS error: Origin not allowed',
       allowedOrigins
     });
-  } else if (err instanceof SyntaxError && err.status === 413) {
+  } else if (err instanceof SyntaxError && 'status' in err && err.status === 413) {
     res.status(413).json({
       error: 'Payload too large',
       message: 'The image file size is too large. Please use a smaller image (max 50MB).'
@@ -58,7 +58,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', env: process.env.NODE_ENV });
 });
 
