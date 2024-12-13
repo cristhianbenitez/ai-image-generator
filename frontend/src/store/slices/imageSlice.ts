@@ -1,9 +1,55 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { imageService } from '@services/imageService';
+import {
+  createSlice,
+  createAsyncThunk,
+  createSelector
+} from '@reduxjs/toolkit';
+import { imageService } from '@services';
 import type { FormData } from '@types';
 import { fetchAllData } from './dataSlice';
 import { fetchUserCollection } from './collectionSlice';
 import type { AppDispatch } from '@store';
+import type { RootState } from '@store';
+import type { GeneratedImage } from '@types';
+
+// Note: For larger applications, it's recommended to move selectors to a separate
+// 'selectors' directory for better organization and reusability. However, for
+// smaller applications or when selectors are tightly coupled to a specific slice,
+// it's acceptable to keep them in the same file as the slice.
+//
+// Current approach: Keep selectors with slice because:
+// 1. These selectors are specific to the image slice
+// 2. We have a relatively small number of selectors
+// 3. It makes the code more discoverable for this specific feature
+// 4. The selectors are not shared with other slices
+
+// Selectors
+export const selectBookmarkStatus = createSelector(
+  [
+    (state: RootState) => state.image.bookmarkStatus,
+    (_: RootState, imageId: number) => imageId
+  ],
+  (bookmarkStatus, imageId) =>
+    bookmarkStatus[imageId] || {
+      isBookmarked: false,
+      isLoading: false,
+      error: null
+    }
+);
+
+export const makeSelectBookmarkStatus = () => {
+  return createSelector(
+    [
+      (state: RootState) => state.image.bookmarkStatus,
+      (_: RootState, post: GeneratedImage) => post
+    ],
+    (bookmarkStatus, post) =>
+      bookmarkStatus[post.id] || {
+        isBookmarked: post.isBookmarked || false,
+        isLoading: false,
+        error: null
+      }
+  );
+};
 
 interface ImageState {
   generatedImage: string | null;
@@ -26,7 +72,7 @@ const initialFormData: FormData = {
   color: '',
   resolution: '1024 × 1024 (1:1)',
   guidance: 7,
-  seed: Math.floor(Math.random() * 1000000),
+  seed: Math.floor(Math.random() * 1000000)
 };
 
 const initialState: ImageState = {
@@ -35,7 +81,7 @@ const initialState: ImageState = {
   error: null,
   formData: initialFormData,
   currentBlobUrl: null,
-  bookmarkStatus: {},
+  bookmarkStatus: {}
 };
 
 // Helper function to revoke the old blob URL
@@ -53,24 +99,37 @@ export const generateImage = createAsyncThunk(
       const imageUrl = URL.createObjectURL(imageBlob);
       return imageUrl;
     } catch (error) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Failed to generate image');
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to generate image'
+      );
     }
   }
 );
 
 export const saveImageToHistory = createAsyncThunk(
   'image/saveToHistory',
-  async ({ userId, formData, imageUrl }: { userId: number; formData: FormData; imageUrl: string }, { dispatch }) => {
+  async (
+    {
+      userId,
+      formData,
+      imageUrl
+    }: { userId: number; formData: FormData; imageUrl: string },
+    { dispatch }
+  ) => {
     try {
       await imageService.saveImageToHistory(userId, formData, imageUrl);
 
       // Refresh data after saving
       await Promise.all([
-        dispatch(fetchAllData({ userId: userId.toString(), forceRefresh: true })),
+        dispatch(
+          fetchAllData({ userId: userId.toString(), forceRefresh: true })
+        ),
         dispatch(fetchUserCollection(userId))
       ]);
     } catch (error) {
-      throw new Error(error instanceof Error ? error.message : 'Failed to save image');
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to save image'
+      );
     }
   }
 );
@@ -78,7 +137,10 @@ export const saveImageToHistory = createAsyncThunk(
 // New thunk for bookmarking images
 export const toggleBookmark = createAsyncThunk(
   'image/toggleBookmark',
-  async ({ imageId, userId }: { imageId: number; userId: number }, { dispatch, rejectWithValue }) => {
+  async (
+    { imageId, userId }: { imageId: number; userId: number },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       await imageService.toggleBookmark(userId, imageId);
 
@@ -89,32 +151,36 @@ export const toggleBookmark = createAsyncThunk(
     } catch (error) {
       return rejectWithValue({
         imageId,
-        error: error instanceof Error ? error.message : 'Failed to toggle bookmark'
+        error:
+          error instanceof Error ? error.message : 'Failed to toggle bookmark'
       });
     }
   }
 );
 
 // Helper action creator to handle the full image generation flow
-export const handleImageGeneration = (formData: FormData, userId?: number) => async (dispatch: AppDispatch) => {
-  try {
-    // Generate the image
-    const resultAction = await dispatch(generateImage(formData)).unwrap();
+export const handleImageGeneration =
+  (formData: FormData, userId?: number) => async (dispatch: AppDispatch) => {
+    try {
+      // Generate the image
+      const resultAction = await dispatch(generateImage(formData)).unwrap();
 
-    // If user is logged in, save to history and refresh data
-    if (userId && resultAction) {
-      await dispatch(saveImageToHistory({
-        userId,
-        formData,
-        imageUrl: resultAction
-      })).unwrap();
+      // If user is logged in, save to history and refresh data
+      if (userId && resultAction) {
+        await dispatch(
+          saveImageToHistory({
+            userId,
+            formData,
+            imageUrl: resultAction
+          })
+        ).unwrap();
+      }
+
+      return resultAction;
+    } catch (error) {
+      throw error;
     }
-
-    return resultAction;
-  } catch (error) {
-    throw error;
-  }
-};
+  };
 
 const imageSlice = createSlice({
   name: 'image',
@@ -123,7 +189,7 @@ const imageSlice = createSlice({
     setFormData: (state, action) => {
       state.formData = action.payload;
     },
-    resetForm: (state) => {
+    resetForm: state => {
       // Revoke the current blob URL if it exists
       if (state.currentBlobUrl) {
         revokeBlobUrl(state.currentBlobUrl);
@@ -134,7 +200,7 @@ const imageSlice = createSlice({
       state.status = 'idle';
       state.error = null;
     },
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
     setBookmarkStatus: (state, action) => {
@@ -144,11 +210,11 @@ const imageSlice = createSlice({
         isLoading: false,
         error: null
       };
-    },
+    }
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(generateImage.pending, (state) => {
+      .addCase(generateImage.pending, state => {
         state.status = 'loading';
         state.error = null;
       })
@@ -188,15 +254,19 @@ const imageSlice = createSlice({
         };
       })
       .addCase(toggleBookmark.rejected, (state, action) => {
-        const { imageId, error } = action.payload as { imageId: number; error: string };
+        const { imageId, error } = action.payload as {
+          imageId: number;
+          error: string;
+        };
         state.bookmarkStatus[imageId] = {
           ...state.bookmarkStatus[imageId],
           isLoading: false,
           error
         };
       });
-  },
+  }
 });
 
-export const { setFormData, resetForm, clearError, setBookmarkStatus } = imageSlice.actions;
+export const { setFormData, resetForm, clearError, setBookmarkStatus } =
+  imageSlice.actions;
 export default imageSlice.reducer;

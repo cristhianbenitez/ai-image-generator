@@ -1,8 +1,7 @@
-import { API_ENDPOINTS } from '@config/api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import type { RootState } from '@store';
 import type { GeneratedImage } from '@types';
-import { apiRequest } from '@utils/api';
+import { dataService } from '@services';
+import { setBookmarkStatus } from './imageSlice';
 
 interface DataState {
   allImages: GeneratedImage[];
@@ -11,7 +10,6 @@ interface DataState {
   error: string | null;
   lastFetched: number | null;
   isInitialized: boolean;
-  // TODO: Add proper pagination state later
   currentPage: number;
   hasMore: boolean;
 }
@@ -40,45 +38,36 @@ export const fetchAllData = createAsyncThunk(
   'data/fetchAllData',
   async (
     { userId, forceRefresh = false, page = 1 }: FetchAllDataParams,
-    { getState, rejectWithValue }
+    { getState, dispatch, rejectWithValue }
   ) => {
-    const state = getState() as RootState;
-    const { lastFetched, isInitialized } = state.data;
-
-    // Skip if already initialized and cache is valid, unless force refresh is requested
-    if (
-      !forceRefresh &&
-      isInitialized &&
-      lastFetched &&
-      Date.now() - lastFetched < CACHE_DURATION &&
-      page === 1
-    ) {
-      return null;
-    }
-
     try {
-      const limit = 20; // Increased page size for better UX
-      const queryParams = new URLSearchParams();
-      if (userId) queryParams.append('userId', userId);
-      queryParams.append('page', page.toString());
-      queryParams.append('limit', limit.toString());
+      const state = getState() as { data: DataState };
+      const { lastFetched, isInitialized } = state.data;
 
-      const [imagesResponse, userImages] = await Promise.all([
-        apiRequest(`${API_ENDPOINTS.IMAGES}?${queryParams.toString()}`),
-        userId
-          ? apiRequest(API_ENDPOINTS.USER_IMAGES(parseInt(userId)))
-          : Promise.resolve([])
-      ]);
+      // Skip if already initialized and cache is valid, unless force refresh is requested
+      if (
+        !forceRefresh &&
+        isInitialized &&
+        lastFetched &&
+        Date.now() - lastFetched < CACHE_DURATION &&
+        page === 1
+      ) {
+        return null;
+      }
 
-      // Extract data and pagination from response
-      const { data: allImages, pagination } = imagesResponse;
+      const response = await dataService.fetchAllData({ userId, page });
 
-      return {
-        allImages,
-        userImages,
-        hasMore: pagination?.hasMore ?? false,
-        currentPage: page
-      };
+      // Initialize bookmark status for each image
+      response.allImages.forEach(image => {
+        dispatch(
+          setBookmarkStatus({
+            imageId: image.id,
+            isBookmarked: image.isBookmarked || false
+          })
+        );
+      });
+
+      return response;
     } catch (error) {
       return rejectWithValue(
         error instanceof Error ? error.message : 'Failed to fetch data'
@@ -107,6 +96,7 @@ const dataSlice = createSlice({
         if (action.payload) {
           const { allImages, userImages, hasMore, currentPage } =
             action.payload;
+
           // If it's the first page or a refresh, replace the images
           // Otherwise, append the new images
           state.allImages =

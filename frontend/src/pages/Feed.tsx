@@ -8,14 +8,15 @@ import {
   LoadingSpinner,
   ErrorMessage,
   EmptyFeed,
-  SEO
+  SEO,
+  FeedSkeleton
 } from '@components';
 import { BREAKPOINT_COLUMNS } from '@constants';
 
 export const Feed = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.auth);
-  const { allImages, loading, error, currentPage, hasMore } = useAppSelector(
+  const { allImages, loading, error, currentPage, hasMore, isInitialized, lastFetched } = useAppSelector(
     state => state.data
   );
 
@@ -26,13 +27,17 @@ export const Feed = () => {
 
   // Fetch initial data
   useEffect(() => {
-    dispatch(
-      fetchAllData({
-        userId: user?.id ? parseInt(user.id) : undefined,
-        forceRefresh: true
-      })
-    );
-  }, [dispatch, user?.id]);
+    const shouldFetchData = !lastFetched || !isInitialized;
+
+    if (shouldFetchData) {
+      dispatch(
+        fetchAllData({
+          userId: user?.id,
+          forceRefresh: false
+        })
+      );
+    }
+  }, [dispatch, user?.id, lastFetched, isInitialized]);
 
   // Handle intersection observer for infinite scroll
   const handleObserver = useCallback(
@@ -41,7 +46,7 @@ export const Feed = () => {
       if (target.isIntersecting && hasMore && !loading) {
         dispatch(
           fetchAllData({
-            userId: user?.id ? parseInt(user.id) : undefined,
+            userId: user?.id,
             page: currentPage + 1
           })
         );
@@ -74,7 +79,11 @@ export const Feed = () => {
   let content;
   if (error) {
     content = <ErrorMessage message={error} />;
-  } else if (!allImages?.length && !loading) {
+  } else if (!isInitialized || (loading && !allImages.length)) {
+    // Show skeleton loader for initial load or when we have no images and are loading
+    content = <FeedSkeleton />;
+  } else if (!allImages?.length) {
+    // Only show empty state when we're not loading and have no images
     content = (
       <EmptyFeed
         title="No images yet"
@@ -95,12 +104,12 @@ export const Feed = () => {
             ))}
           </Masonry>
 
-          {/* Loading trigger element */}
+          {/* Loading trigger element for infinite scroll */}
           <div
             ref={loadingTriggerRef}
             className="w-full h-10 flex items-center justify-center"
           >
-            {loading && <LoadingSpinner size="small" />}
+            {loading && hasMore && <LoadingSpinner size="small" message="Loading more..." />}
           </div>
         </Suspense>
       </div>

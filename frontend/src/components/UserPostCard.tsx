@@ -1,9 +1,10 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useMemo } from 'react';
 
 import BookmarkIcon from '@assets/icons/bookmark.svg';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { toggleBookmark } from '@store/slices/imageSlice';
-import type { GeneratedImage, User } from '@types';
+import { toggleBookmark, makeSelectBookmarkStatus } from '@store/slices/imageSlice';
+import { openAuthModal } from '@store/slices/authSlice';
+import type { GeneratedImage } from '@types';
 import { RootState } from '@store';
 import { ImageDetailsModal } from './ImageDetailsModal';
 
@@ -15,14 +16,14 @@ interface UserPostCardProps {
 interface BookmarkButtonProps {
   isBookmarked: boolean;
   isLoading: boolean;
-  user: User | null;
+  isAuthenticated: boolean;
   handleBookmark: () => void;
 }
 
 const BookmarkButton: FC<BookmarkButtonProps> = ({
   isBookmarked,
   isLoading,
-  user,
+  isAuthenticated,
   handleBookmark
 }) => (
   <button
@@ -30,12 +31,11 @@ const BookmarkButton: FC<BookmarkButtonProps> = ({
       e.stopPropagation();
       handleBookmark();
     }}
-    disabled={isLoading || !user}
+    disabled={isLoading}
     className={`w-7 h-7 flex z-30 items-center justify-center rounded-lg
         ${isBookmarked ? 'bg-purple' : 'bg-darkAlt hover:bg-darkAlt2'}
-        ${!user ? 'opacity-50 cursor-not-allowed' : ''}
         ${isLoading ? 'animate-pulse' : ''}`}
-    title={user ? 'Bookmark image' : 'Login to bookmark'}
+    title={isAuthenticated ? 'Bookmark image' : 'Login to bookmark'}
   >
     <img src={BookmarkIcon} alt="Bookmark icon" />
   </button>
@@ -44,14 +44,22 @@ const BookmarkButton: FC<BookmarkButtonProps> = ({
 export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state: RootState) => state.auth);
-  const bookmarkStatus = useAppSelector(
-    (state: RootState) => state.image.bookmarkStatus[post.id]
-  );
+  const { user, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
+
+  // Create memoized selector instance
+  const selectBookmarkStatus = useMemo(makeSelectBookmarkStatus, []);
+
+  // Use memoized selector
+  const bookmarkStatus = useAppSelector(state => selectBookmarkStatus(state, post));
 
   const { id, prompt, imageUrl } = post;
 
   const handleBookmark = async () => {
+    if (!isAuthenticated) {
+      dispatch(openAuthModal());
+      return;
+    }
+
     if (!user?.id) {
       console.error('User not authenticated');
       return;
@@ -81,13 +89,13 @@ export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
   return (
     <>
       <div
-        className="relative cursor-pointer rounded-lg  overflow-hidden"
+        className="relative cursor-pointer rounded-lg overflow-hidden"
         onClick={handleCardClick}
       >
         <img
           src={imageUrl}
           alt={prompt}
-          className="w-full h-full object-cover rounded-lg "
+          className="w-full h-full object-cover rounded-lg"
         />
         <div className="absolute bottom-0 left-0 right-0 top-1/2 bg-gradient-to-t from-black/80 via-black/10 to-transparent">
           <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-center">
@@ -96,16 +104,16 @@ export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
               onClick={e => e.stopPropagation()}
             >
               <img
-                src={user?.avatar}
-                alt={user?.name}
+                src={post.user.avatar}
+                alt={post.user.name}
                 className="w-6 h-6 rounded-full"
               />
-              {user?.name}
+              {post.user.name}
             </span>
             <BookmarkButton
-              isBookmarked={bookmarkStatus?.isBookmarked || false}
-              isLoading={bookmarkStatus?.isLoading || false}
-              user={user}
+              isBookmarked={bookmarkStatus.isBookmarked}
+              isLoading={bookmarkStatus.isLoading}
+              isAuthenticated={isAuthenticated}
               handleBookmark={handleBookmark}
             />
           </div>
