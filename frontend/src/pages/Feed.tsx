@@ -18,9 +18,9 @@ export const Feed = () => {
   const { allImages, loading, error } = useAppSelector(state => state.data);
 
   useEffect(() => {
-    if (user?.id) {
-      dispatch(fetchAllData({ userId: user.id }));
-    }
+    dispatch(
+      fetchAllData({ userId: user?.id ? parseInt(user.id) : undefined })
+    );
   }, [dispatch, user?.id]);
 
   let content;
@@ -28,7 +28,7 @@ export const Feed = () => {
     content = <LoadingSpinner />;
   } else if (error) {
     content = <ErrorMessage message={error} />;
-  } else if (!allImages.length) {
+  } else if (!allImages?.length) {
     content = (
       <EmptyFeed
         title="No images yet"

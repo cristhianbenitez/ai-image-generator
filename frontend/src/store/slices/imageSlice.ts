@@ -10,6 +10,14 @@ interface ImageState {
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   formData: FormData;
+  currentBlobUrl: string | null;
+  bookmarkStatus: {
+    [key: string]: {
+      isBookmarked: boolean;
+      isLoading: boolean;
+      error: string | null;
+    };
+  };
 }
 
 const initialFormData: FormData = {
@@ -26,6 +34,15 @@ const initialState: ImageState = {
   status: 'idle',
   error: null,
   formData: initialFormData,
+  currentBlobUrl: null,
+  bookmarkStatus: {},
+};
+
+// Helper function to revoke the old blob URL
+const revokeBlobUrl = (url: string | null) => {
+  if (url && url.startsWith('blob:')) {
+    URL.revokeObjectURL(url);
+  }
 };
 
 export const generateImage = createAsyncThunk(
@@ -54,6 +71,26 @@ export const saveImageToHistory = createAsyncThunk(
       ]);
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : 'Failed to save image');
+    }
+  }
+);
+
+// New thunk for bookmarking images
+export const toggleBookmark = createAsyncThunk(
+  'image/toggleBookmark',
+  async ({ imageId, userId }: { imageId: number; userId: number }, { dispatch, rejectWithValue }) => {
+    try {
+      await imageService.toggleBookmark(userId, imageId);
+
+      // Refresh collections after toggling bookmark
+      await dispatch(fetchUserCollection(userId));
+
+      return { imageId, success: true };
+    } catch (error) {
+      return rejectWithValue({
+        imageId,
+        error: error instanceof Error ? error.message : 'Failed to toggle bookmark'
+      });
     }
   }
 );
@@ -87,13 +124,26 @@ const imageSlice = createSlice({
       state.formData = action.payload;
     },
     resetForm: (state) => {
+      // Revoke the current blob URL if it exists
+      if (state.currentBlobUrl) {
+        revokeBlobUrl(state.currentBlobUrl);
+      }
       state.formData = initialFormData;
       state.generatedImage = null;
+      state.currentBlobUrl = null;
       state.status = 'idle';
       state.error = null;
     },
     clearError: (state) => {
       state.error = null;
+    },
+    setBookmarkStatus: (state, action) => {
+      const { imageId, isBookmarked } = action.payload;
+      state.bookmarkStatus[imageId] = {
+        isBookmarked,
+        isLoading: false,
+        error: null
+      };
     },
   },
   extraReducers: (builder) => {
@@ -103,8 +153,13 @@ const imageSlice = createSlice({
         state.error = null;
       })
       .addCase(generateImage.fulfilled, (state, action) => {
+        // Revoke the old blob URL if it exists
+        if (state.currentBlobUrl) {
+          revokeBlobUrl(state.currentBlobUrl);
+        }
         state.status = 'succeeded';
         state.generatedImage = action.payload;
+        state.currentBlobUrl = action.payload;
         state.error = null;
       })
       .addCase(generateImage.rejected, (state, action) => {
@@ -113,9 +168,35 @@ const imageSlice = createSlice({
       })
       .addCase(saveImageToHistory.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to save image to history';
+      })
+      // Handle bookmark status
+      .addCase(toggleBookmark.pending, (state, action) => {
+        const { imageId } = action.meta.arg;
+        state.bookmarkStatus[imageId] = {
+          ...state.bookmarkStatus[imageId],
+          isLoading: true,
+          error: null
+        };
+      })
+      .addCase(toggleBookmark.fulfilled, (state, action) => {
+        const { imageId } = action.meta.arg;
+        const currentStatus = state.bookmarkStatus[imageId]?.isBookmarked;
+        state.bookmarkStatus[imageId] = {
+          isBookmarked: !currentStatus,
+          isLoading: false,
+          error: null
+        };
+      })
+      .addCase(toggleBookmark.rejected, (state, action) => {
+        const { imageId, error } = action.payload as { imageId: number; error: string };
+        state.bookmarkStatus[imageId] = {
+          ...state.bookmarkStatus[imageId],
+          isLoading: false,
+          error
+        };
       });
   },
 });
 
-export const { setFormData, resetForm, clearError } = imageSlice.actions;
+export const { setFormData, resetForm, clearError, setBookmarkStatus } = imageSlice.actions;
 export default imageSlice.reducer;

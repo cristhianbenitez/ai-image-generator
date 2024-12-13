@@ -12,3 +12,4 @@ export {
 export { Sidebar } from './Sidebar';
 export { UserPostCard } from './UserPostCard';
 export { SEO } from './SEO';
+export { ImageDetailsModal } from './ImageDetailsModal';
