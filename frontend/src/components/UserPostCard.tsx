@@ -80,11 +80,14 @@ export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
 
   return (
     <>
-      <div className="relative cursor-pointer" onClick={handleCardClick}>
+      <div
+        className="relative cursor-pointer rounded-lg  overflow-hidden"
+        onClick={handleCardClick}
+      >
         <img
           src={imageUrl}
           alt={prompt}
-          className="w-full h-full object-cover rounded-lg"
+          className="w-full h-full object-cover rounded-lg "
         />
         <div className="absolute bottom-0 left-0 right-0 top-1/2 bg-gradient-to-t from-black/80 via-black/10 to-transparent">
           <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-center">
