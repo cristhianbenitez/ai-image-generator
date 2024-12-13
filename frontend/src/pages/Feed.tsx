@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useRef, useCallback } from 'react';
 import Masonry from 'react-masonry-css';
 
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -15,20 +15,66 @@ import { BREAKPOINT_COLUMNS } from '@constants';
 export const Feed = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.auth);
-  const { allImages, loading, error } = useAppSelector(state => state.data);
+  const { allImages, loading, error, currentPage, hasMore } = useAppSelector(
+    state => state.data
+  );
 
+  // Reference for our observer
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  // Reference for the loading trigger element
+  const loadingTriggerRef = useRef<HTMLDivElement>(null);
+
+  // Fetch initial data
   useEffect(() => {
     dispatch(
-      fetchAllData({ userId: user?.id ? parseInt(user.id) : undefined })
+      fetchAllData({
+        userId: user?.id ? parseInt(user.id) : undefined,
+        forceRefresh: true
+      })
     );
   }, [dispatch, user?.id]);
 
+  // Handle intersection observer for infinite scroll
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const target = entries[0];
+      if (target.isIntersecting && hasMore && !loading) {
+        dispatch(
+          fetchAllData({
+            userId: user?.id ? parseInt(user.id) : undefined,
+            page: currentPage + 1
+          })
+        );
+      }
+    },
+    [dispatch, hasMore, loading, currentPage, user?.id]
+  );
+
+  // Set up the intersection observer
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '100px', // Start loading before reaching the end
+      threshold: 0.1
+    };
+
+    observerRef.current = new IntersectionObserver(handleObserver, options);
+
+    if (loadingTriggerRef.current) {
+      observerRef.current.observe(loadingTriggerRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [handleObserver]);
+
   let content;
-  if (loading) {
-    content = <LoadingSpinner />;
-  } else if (error) {
+  if (error) {
     content = <ErrorMessage message={error} />;
-  } else if (!allImages?.length) {
+  } else if (!allImages?.length && !loading) {
     content = (
       <EmptyFeed
         title="No images yet"
@@ -48,6 +94,14 @@ export const Feed = () => {
               <UserPostCard key={image.id} post={image} />
             ))}
           </Masonry>
+
+          {/* Loading trigger element */}
+          <div
+            ref={loadingTriggerRef}
+            className="w-full h-10 flex items-center justify-center"
+          >
+            {loading && <LoadingSpinner size="small" />}
+          </div>
         </Suspense>
       </div>
     );

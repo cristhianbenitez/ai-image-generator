@@ -1,10 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 import { oauth2Client } from '../config/oauth';
 import jwt from 'jsonwebtoken';
-
-const prisma = new PrismaClient({
-  datasources: { db: { url: process.env.DATABASE_URL } },
-});
 
 interface GithubUser {
   id: number;

@@ -1,10 +1,6 @@
+import prisma from '../lib/prisma';
 import { env } from '../config/env.ts';
-import { PrismaClient } from '@prisma/client';
 import { AppError, UserNotFoundError } from '../types/errors.ts';
-
-const prisma = new PrismaClient({
-  datasources: { db: { url: env.DATABASE_URL } },
-});
 
 export class ImageService {
   async saveGeneratedImage(data: {

@@ -2,30 +2,39 @@ import { API_ENDPOINTS } from '@config/api';
 import type { FormData } from '@types';
 import { apiRequest } from '@utils/api';
 import { collectionService } from './collectionService';
+import { imageUtils } from '@utils/imageUtils';
 
 const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
 
 export const imageService = {
   generateImage: async (formData: FormData): Promise<Blob> => {
+    const coloredPrompt = imageUtils.createColoredPrompt(
+      formData.prompt,
+      formData.color
+    );
+    const { width, height } = imageUtils.parseResolution(formData.resolution);
+
     const response = await fetch(API_ENDPOINTS.SEGMIND, {
       method: 'POST',
       headers: {
         'x-api-key': import.meta.env.VITE_SEGMIND_API_KEY,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: formData.prompt,
+        prompt: coloredPrompt,
         negative_prompt: formData.negativePrompt,
         guidance_scale: formData.guidance,
         seed: formData.seed,
-        img_width: 1024,
-        img_height: 1024,
-      }),
+        img_width: width,
+        img_height: height
+      })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`API Error: ${response.status} - ${JSON.stringify(errorData)}`);
+      throw new Error(
+        `API Error: ${response.status} - ${JSON.stringify(errorData)}`
+      );
     }
 
     return response.blob();
@@ -34,7 +43,7 @@ export const imageService = {
   saveImageToHistory: async (
     userId: number,
     formData: FormData,
-    imageUrl: string,
+    imageUrl: string
   ): Promise<void> => {
     try {
       // Convert blob URL to base64
@@ -42,11 +51,13 @@ export const imageService = {
       const blob = await response.blob();
 
       if (blob.size > MAX_IMAGE_SIZE) {
-        throw new Error(`Image size (${(blob.size / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size (50MB)`);
+        throw new Error(
+          `Image size (${(blob.size / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size (50MB)`
+        );
       }
 
       // Convert blob to base64
-      const base64 = await new Promise<string>((resolve) => {
+      const base64 = await new Promise<string>(resolve => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
         reader.readAsDataURL(blob);
@@ -62,11 +73,13 @@ export const imageService = {
           resolution: formData.resolution,
           guidance: formData.guidance,
           seed: formData.seed,
-          imageUrl: base64,
-        }),
+          imageUrl: base64
+        })
       });
     } catch (error) {
-      throw new Error(`Failed to save image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to save image: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   },
 
@@ -84,7 +97,9 @@ export const imageService = {
         await collectionService.saveToCollection(userId, imageId);
       }
     } catch (error) {
-      throw new Error(`Failed to toggle bookmark: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to toggle bookmark: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 };
