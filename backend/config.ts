@@ -1,5 +1,5 @@
-export const DATABASE_URL = Deno.env.get("DATABASE_URL") ?? "";
-export const DIRECT_URL = Deno.env.get("DIRECT_URL") ?? "";
+export const DATABASE_URL = process.env.DATABASE_URL ?? "";
+export const DIRECT_URL = process.env.DIRECT_URL ?? "";
 
 // Validate required environment variables
 if (!DATABASE_URL) {

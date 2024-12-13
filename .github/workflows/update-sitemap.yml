@@ -28,8 +28,8 @@ jobs:
         run: npm run generate-sitemap
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          VITE_FRONTEND_URL: 'https://taanga-images.onrender.com'
-          VITE_BACKEND_URL: 'https://taanga-backend.onrender.com'
+          VITE_FRONTEND_URL: 'https://taanga-images.vercel.app'
+          VITE_BACKEND_URL: 'https://taanga-backend.vercel.app'
 
       - name: Commit and push if changed
         run: |

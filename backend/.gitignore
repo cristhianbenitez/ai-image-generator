@@ -32,3 +32,17 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# prisma
+/prisma/*.db
+/prisma/migrations
+
+# logs
+/logs
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
