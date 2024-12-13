@@ -15,6 +15,8 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // CORS configuration
 const allowedOrigins = [
+  'https://taanga-app.vercel.app',
+  'https://taanga.vercel.app',
   'https://taanga-images.vercel.app',
   'http://localhost:5173'
 ].filter(Boolean);
@@ -33,7 +35,7 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin', 'Accept']
   })
 );
 
@@ -47,10 +49,15 @@ app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
       error: 'CORS error: Origin not allowed',
       allowedOrigins
     });
-  } else if (err instanceof SyntaxError && 'status' in err && err.status === 413) {
+  } else if (
+    err instanceof SyntaxError &&
+    'status' in err &&
+    err.status === 413
+  ) {
     res.status(413).json({
       error: 'Payload too large',
-      message: 'The image file size is too large. Please use a smaller image (max 50MB).'
+      message:
+        'The image file size is too large. Please use a smaller image (max 50MB).'
     });
   } else {
     next(err);

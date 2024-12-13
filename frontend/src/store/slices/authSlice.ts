@@ -19,10 +19,10 @@ const initialState: AuthState = {
 };
 
 const getBackendUrl = () => {
-  if (import.meta.env.VERCEL_URL) {
-    return `https://${import.meta.env.VERCEL_URL}`;
+  if (import.meta.env.PROD) {
+    return 'https://taanga-backend.vercel.app';
   }
-  return import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+  return import.meta.env.VITE_API_URL_LOCAL || 'http://localhost:8000';
 };
 
 export const setUserAndFetchData =

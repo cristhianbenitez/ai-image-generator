@@ -5,13 +5,16 @@ dotenvConfig();
 
 // Helper functions for URLs
 const getBackendUrl = () => {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://taanga-backend.vercel.app';
   }
   return process.env.VITE_BACKEND_URL || 'http://localhost:8000';
 };
 
 const getFrontendUrl = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://taanga-app.vercel.app';
+  }
   return process.env.VITE_FRONTEND_URL || 'http://localhost:5173';
 };
 
