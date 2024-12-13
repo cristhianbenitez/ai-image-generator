@@ -2,7 +2,7 @@ export { AuthModal } from './AuthModal';
 export { ImageGeneratorForm } from './ImageGeneratorForm';
 export { ImageModal } from './ImageModal';
 export { Layout } from './Layout';
-export { LoadingSpinner } from './LoadingSpinner';
+export { LoadingSpinner, FeedSkeleton } from './LoadingSpinner';
 export {
   EmptyHistory,
   ErrorMessage,
@@ -12,3 +12,4 @@ export {
 export { Sidebar } from './Sidebar';
 export { UserPostCard } from './UserPostCard';
 export { SEO } from './SEO';
+export { ImageDetailsModal } from './ImageDetailsModal';

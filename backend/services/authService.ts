@@ -1,10 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 import { oauth2Client } from '../config/oauth';
 import jwt from 'jsonwebtoken';
-
-const prisma = new PrismaClient({
-  datasources: { db: { url: process.env.DATABASE_URL } },
-});
 
 interface GithubUser {
   id: number;
@@ -54,8 +50,9 @@ export class AuthService {
   private async getGithubUserInfo(accessToken: string): Promise<GithubUser> {
     const response = await fetch('https://api.github.com/user', {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `token ${accessToken}`,
         Accept: 'application/json',
+        'User-Agent': 'taanga-app'
       },
     });
 

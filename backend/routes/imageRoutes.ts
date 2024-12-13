@@ -1,26 +1,99 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 
-const prisma = new PrismaClient();
 const router = Router();
 
-// Get all images
+// Constants for pagination limits
+const MAX_PAGE_SIZE = 50;
+const DEFAULT_PAGE_SIZE = 10;
+
+// Get all images (feed)
 router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
+    // Input validation and sanitization
     const userId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
+    let page = Math.max(1, parseInt(req.query.page as string) || 1);
+    let limit = Math.min(
+      MAX_PAGE_SIZE,
+      Math.max(1, parseInt(req.query.limit as string) || DEFAULT_PAGE_SIZE)
+    );
+    const skip = (page - 1) * limit;
 
-    const images = await prisma.generatedImage.findMany({
-      where: userId ? { userId } : undefined,
-      include: {
-        user: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+    // Use Promise.all to run queries concurrently
+    const [totalImages, images] = await Promise.all([
+      // Get total count for pagination
+      prisma.generatedImage.count(),
+
+      // Fetch paginated images with optimized fields
+      prisma.generatedImage.findMany({
+        select: {
+          id: true,
+          prompt: true,
+          negativePrompt: true,
+          color: true,
+          resolution: true,
+          guidance: true,
+          seed: true,
+          imageUrl: true,
+          createdAt: true,
+          userId: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: limit,
+        skip: skip
+      })
+    ]);
+
+    // If userId is provided, fetch bookmark status efficiently
+    let imagesWithBookmarkStatus = images;
+    if (userId) {
+      const userCollection = await prisma.collection.findUnique({
+        where: { userId },
+        select: {
+          images: {
+            select: { id: true }
+          }
+        }
+      });
+
+      const bookmarkedImageIds = new Set(
+        userCollection?.images.map(img => img.id) || []
+      );
+
+      imagesWithBookmarkStatus = images.map(image => ({
+        ...image,
+        isBookmarked: bookmarkedImageIds.has(image.id)
+      }));
+    }
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalImages / limit);
+
+    res.json({
+      data: imagesWithBookmarkStatus,
+      pagination: {
+        total: totalImages,
+        pages: totalPages,
+        currentPage: page,
+        perPage: limit,
+        hasMore: page < totalPages
+      }
     });
-    res.json(images);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch images' });
+    console.error('Error fetching images:', error);
+    res.status(500).json({
+      error: 'Failed to fetch images',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
@@ -28,20 +101,89 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 router.get('/user/:userId', async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = parseInt(req.params.userId);
-    const images = await prisma.generatedImage.findMany({
-      where: {
-        userId: userId,
-      },
-      include: {
-        user: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(
+      MAX_PAGE_SIZE,
+      Math.max(1, parseInt(req.query.limit as string) || DEFAULT_PAGE_SIZE)
+    );
+    const skip = (page - 1) * limit;
+
+    if (isNaN(userId)) {
+      res.status(400).json({ error: 'Invalid user ID format' });
+      return;
+    }
+
+    // First check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true }
     });
-    res.json(images);
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Use Promise.all to run queries concurrently
+    const [totalImages, images] = await Promise.all([
+      // Get total count
+      prisma.generatedImage.count({
+        where: { userId }
+      }),
+
+      // Fetch paginated images
+      prisma.generatedImage.findMany({
+        where: {
+          userId: userId,
+        },
+        select: {
+          id: true,
+          prompt: true,
+          negativePrompt: true,
+          color: true,
+          resolution: true,
+          guidance: true,
+          seed: true,
+          imageUrl: true,
+          createdAt: true,
+          userId: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: limit,
+        skip: skip
+      })
+    ]);
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalImages / limit);
+
+    console.log(`Successfully fetched ${images.length} images for user ${userId} (page ${page} of ${totalPages})`);
+
+    res.json({
+      data: images,
+      pagination: {
+        total: totalImages,
+        pages: totalPages,
+        currentPage: page,
+        perPage: limit,
+        hasMore: page < totalPages
+      }
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user images' });
+    console.error('Error fetching user images:', error);
+    res.status(500).json({
+      error: 'Failed to fetch user images',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 

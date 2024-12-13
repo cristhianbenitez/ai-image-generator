@@ -1,68 +1,50 @@
-import React, { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-
+import React, { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppDispatch } from '@store/hooks';
 import { setUserAndFetchData, closeAuthModal } from '@store/slices/authSlice';
 
 export const AuthCallback = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const dataProcessed = useRef(false);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const redirectToHome = () => navigate('/', { replace: true });
-    const redirectToLogin = () => navigate('/login');
+    const data = searchParams.get('data');
+    const error = searchParams.get('error');
 
-    const processUserData = (rawData: string) => {
+    if (error) {
+      console.error('GitHub OAuth error:', error);
+      navigate('/login');
+      return;
+    }
+
+    if (data) {
       try {
-        const data = JSON.parse(decodeURIComponent(rawData));
+        const parsedData = JSON.parse(data);
 
-        if (!data || !data.user) {
+        if (!parsedData || !parsedData.user) {
           throw new Error('Invalid user data received');
         }
 
         const userToSet = {
-          id: data.user.id.toString(),
-          name: data.user.name,
-          avatar: data.user.avatar
+          id: parsedData.user.id.toString(),
+          name: parsedData.user.name,
+          avatar: parsedData.user.avatar
         };
 
-        // Store the token if present
-        if (data.token) {
-          localStorage.setItem('auth_token', data.token);
+        if (parsedData.token) {
+          localStorage.setItem('auth_token', parsedData.token);
         }
 
         dispatch(setUserAndFetchData(userToSet));
         dispatch(closeAuthModal());
-        dataProcessed.current = true;
-        redirectToHome();
+        navigate('/', { replace: true });
       } catch (error) {
-        console.error('Error processing user data:', error);
-        redirectToLogin();
+        console.error('Error processing authentication data:', error);
+        navigate('/login');
       }
-    };
-
-    const handleCallback = () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      const data = searchParams.get('data');
-
-      if (!data) {
-        console.error('No data parameter found in URL');
-        redirectToLogin();
-        return;
-      }
-
-      processUserData(data);
-    };
-
-    if (!dataProcessed.current) {
-      handleCallback();
     }
-
-    return () => {
-      // Cleanup
-    };
-  }, [dispatch, navigate]);
+  }, [searchParams, dispatch, navigate]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-darkBg">

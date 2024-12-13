@@ -1,10 +1,5 @@
-import { env } from '../config/env.ts';
-import { PrismaClient } from '@prisma/client';
-import { AppError, UserNotFoundError } from '../types/errors.ts';
-
-const prisma = new PrismaClient({
-  datasources: { db: { url: env.DATABASE_URL } },
-});
+import prisma from '../lib/prisma';
+import { AppError, UserNotFoundError } from '../types/errors';
 
 export class ImageService {
   async saveGeneratedImage(data: {
@@ -18,17 +13,23 @@ export class ImageService {
     imageUrl: string;
   }) {
     try {
+      console.log('[ImageService] Saving generated image:', {
+        userId: data.userId,
+        prompt: data.prompt
+      });
+
       // First, verify the user exists
       const user = await prisma.user.findUnique({
-        where: { id: data.userId },
+        where: { id: data.userId }
       });
 
       if (!user) {
+        console.error('[ImageService] User not found:', { userId: data.userId });
         throw new UserNotFoundError(data.userId);
       }
 
       // Create the image record
-      return await prisma.generatedImage.create({
+      const result = await prisma.generatedImage.create({
         data: {
           prompt: data.prompt,
           negativePrompt: data.negativePrompt || '',
@@ -37,10 +38,22 @@ export class ImageService {
           guidance: data.guidance,
           seed: data.seed,
           imageUrl: data.imageUrl,
-          userId: data.userId, // Direct assignment instead of using connect
-        },
+          userId: data.userId // Direct assignment instead of using connect
+        }
       });
+
+      console.log('[ImageService] Successfully saved image:', {
+        imageId: result.id,
+        userId: result.userId
+      });
+
+      return result;
     } catch (error) {
+      console.error('[ImageService] Error saving image:', {
+        error,
+        userId: data.userId
+      });
+
       if (error instanceof AppError) {
         throw error;
       }
@@ -50,42 +63,60 @@ export class ImageService {
 
   async getUserImages(userId: number) {
     try {
-      return await prisma.generatedImage.findMany({
+      console.log('[ImageService] Fetching user images:', { userId });
+
+      const images = await prisma.generatedImage.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
             select: {
               name: true,
-              avatar: true,
-            },
-          },
-        },
+              avatar: true
+            }
+          }
+        }
       });
+
+      console.log('[ImageService] Successfully fetched user images:', {
+        userId,
+        count: images.length
+      });
+
+      return images;
     } catch (error) {
+      console.error('[ImageService] Error fetching user images:', {
+        error,
+        userId
+      });
       throw new AppError(`Failed to fetch user images: ${error.message}`);
     }
   }
 
   async getAllImages(userId?: number) {
     try {
+      console.log('[ImageService] Fetching all images:', { userId });
+
       const images = await prisma.generatedImage.findMany({
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
             select: {
               name: true,
-              avatar: true,
-            },
-          },
-        },
+              avatar: true
+            }
+          }
+        }
       });
 
       // If no userId provided, return images without bookmark info
       if (!userId) {
+        console.log('[ImageService] Returning images without bookmark info:', {
+          count: images.length
+        });
         return images.map(image => ({
           ...image,
-          isBookmarked: false,
+          isBookmarked: false
         }));
       }
 
@@ -94,22 +125,33 @@ export class ImageService {
         where: { userId },
         include: {
           images: {
-            select: { id: true },
-          },
-        },
+            select: { id: true }
+          }
+        }
       });
 
       // Create a Set of bookmarked image IDs for efficient lookup
       const bookmarkedImageIds = new Set(
-        userCollection?.images.map(img => img.id) || [],
+        userCollection?.images.map(img => img.id) || []
       );
 
-      // Add isBookmarked property to each image
-      return images.map(image => ({
+      const imagesWithBookmarks = images.map(image => ({
         ...image,
-        isBookmarked: bookmarkedImageIds.has(image.id),
+        isBookmarked: bookmarkedImageIds.has(image.id)
       }));
+
+      console.log('[ImageService] Successfully fetched all images:', {
+        userId,
+        totalImages: images.length,
+        bookmarkedImages: bookmarkedImageIds.size
+      });
+
+      return imagesWithBookmarks;
     } catch (error) {
+      console.error('[ImageService] Error fetching all images:', {
+        error,
+        userId
+      });
       throw new AppError(`Failed to fetch images: ${error.message}`);
     }
   }

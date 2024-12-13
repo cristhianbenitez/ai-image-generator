@@ -1,11 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 import fs from 'fs/promises';
 import path from 'path';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const prisma = new PrismaClient();
 const BASE_URL = process.env.VITE_APP_URL || 'http://localhost:5173';
 
 interface SitemapUrl {

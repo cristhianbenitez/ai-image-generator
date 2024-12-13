@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useRef, useCallback } from 'react';
 import Masonry from 'react-masonry-css';
 
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -8,27 +8,82 @@ import {
   LoadingSpinner,
   ErrorMessage,
   EmptyFeed,
-  SEO
+  SEO,
+  FeedSkeleton
 } from '@components';
 import { BREAKPOINT_COLUMNS } from '@constants';
 
 export const Feed = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.auth);
-  const { allImages, loading, error } = useAppSelector(state => state.data);
+  const { allImages, loading, error, currentPage, hasMore, isInitialized, lastFetched } = useAppSelector(
+    state => state.data
+  );
 
+  // Reference for our observer
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  // Reference for the loading trigger element
+  const loadingTriggerRef = useRef<HTMLDivElement>(null);
+
+  // Fetch initial data
   useEffect(() => {
-    if (user?.id) {
-      dispatch(fetchAllData({ userId: user.id }));
+    const shouldFetchData = !lastFetched || !isInitialized;
+
+    if (shouldFetchData) {
+      dispatch(
+        fetchAllData({
+          userId: user?.id,
+          forceRefresh: false
+        })
+      );
     }
-  }, [dispatch, user?.id]);
+  }, [dispatch, user?.id, lastFetched, isInitialized]);
+
+  // Handle intersection observer for infinite scroll
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const target = entries[0];
+      if (target.isIntersecting && hasMore && !loading) {
+        dispatch(
+          fetchAllData({
+            userId: user?.id,
+            page: currentPage + 1
+          })
+        );
+      }
+    },
+    [dispatch, hasMore, loading, currentPage, user?.id]
+  );
+
+  // Set up the intersection observer
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '100px', // Start loading before reaching the end
+      threshold: 0.1
+    };
+
+    observerRef.current = new IntersectionObserver(handleObserver, options);
+
+    if (loadingTriggerRef.current) {
+      observerRef.current.observe(loadingTriggerRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [handleObserver]);
 
   let content;
-  if (loading) {
-    content = <LoadingSpinner />;
-  } else if (error) {
+  if (error) {
     content = <ErrorMessage message={error} />;
-  } else if (!allImages.length) {
+  } else if (!isInitialized || (loading && !allImages.length)) {
+    // Show skeleton loader for initial load or when we have no images and are loading
+    content = <FeedSkeleton />;
+  } else if (!allImages?.length) {
+    // Only show empty state when we're not loading and have no images
     content = (
       <EmptyFeed
         title="No images yet"
@@ -48,6 +103,14 @@ export const Feed = () => {
               <UserPostCard key={image.id} post={image} />
             ))}
           </Masonry>
+
+          {/* Loading trigger element for infinite scroll */}
+          <div
+            ref={loadingTriggerRef}
+            className="w-full h-10 flex items-center justify-center"
+          >
+            {loading && hasMore && <LoadingSpinner size="small" message="Loading more..." />}
+          </div>
         </Suspense>
       </div>
     );

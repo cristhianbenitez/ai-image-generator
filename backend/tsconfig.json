@@ -24,5 +24,10 @@
     "baseUrl": "."
   },
   "exclude": ["node_modules"],
-  "include": ["./index.ts", "./routes/**/*.ts", "./config/**/*.ts", "./services/**/*.ts"]
+  "include": [
+    "./index.ts",
+    "./routes/**/*.ts",
+    "./config/**/*.ts",
+    "./services/**/*.ts"
+  ]
 }
