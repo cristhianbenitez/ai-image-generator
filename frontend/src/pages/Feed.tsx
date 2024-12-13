@@ -18,9 +18,7 @@ export const Feed = () => {
   const { allImages, loading, error } = useAppSelector(state => state.data);
 
   useEffect(() => {
-    if (user?.id) {
-      dispatch(fetchAllData({ userId: user.id }));
-    }
+    dispatch(fetchAllData({ userId: user?.id ? parseInt(user.id) : undefined }));
   }, [dispatch, user?.id]);
 
   let content;
