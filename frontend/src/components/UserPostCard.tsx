@@ -1,10 +1,11 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 
 import BookmarkIcon from '@assets/icons/bookmark.svg';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { toggleBookmark } from '@store/slices/imageSlice';
 import type { GeneratedImage, User } from '@types';
 import { RootState } from '@store';
+import { ImageDetailsModal } from './ImageDetailsModal';
 
 interface UserPostCardProps {
   post: GeneratedImage;
@@ -25,7 +26,10 @@ const BookmarkButton: FC<BookmarkButtonProps> = ({
   handleBookmark
 }) => (
   <button
-    onClick={handleBookmark}
+    onClick={e => {
+      e.stopPropagation();
+      handleBookmark();
+    }}
     disabled={isLoading || !user}
     className={`w-7 h-7 flex z-30 items-center justify-center rounded-lg
         ${isBookmarked ? 'bg-purple' : 'bg-darkAlt hover:bg-darkAlt2'}
@@ -38,6 +42,7 @@ const BookmarkButton: FC<BookmarkButtonProps> = ({
 );
 
 export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state: RootState) => state.auth);
   const bookmarkStatus = useAppSelector(
@@ -69,31 +74,46 @@ export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
     }
   };
 
+  const handleCardClick = () => {
+    setIsDetailsModalOpen(true);
+  };
+
   return (
-    <div className="relative">
-      <img
-        src={imageUrl}
-        alt={prompt}
-        className="w-full h-full object-cover rounded-lg"
-      />
-      <div className="absolute bottom-0 left-0 right-0 top-1/2 bg-gradient-to-t from-black/80 via-black/10 to-transparent">
-        <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-center">
-          <span className="text-sm text-white flex items-center gap-2 font-medium cursor-default">
-            <img
-              src={user?.avatar}
-              alt={user?.name}
-              className="w-6 h-6 rounded-full"
+    <>
+      <div className="relative cursor-pointer" onClick={handleCardClick}>
+        <img
+          src={imageUrl}
+          alt={prompt}
+          className="w-full h-full object-cover rounded-lg"
+        />
+        <div className="absolute bottom-0 left-0 right-0 top-1/2 bg-gradient-to-t from-black/80 via-black/10 to-transparent">
+          <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-center">
+            <span
+              className="text-sm text-white flex items-center gap-2 font-medium cursor-default"
+              onClick={e => e.stopPropagation()}
+            >
+              <img
+                src={user?.avatar}
+                alt={user?.name}
+                className="w-6 h-6 rounded-full"
+              />
+              {user?.name}
+            </span>
+            <BookmarkButton
+              isBookmarked={bookmarkStatus?.isBookmarked || false}
+              isLoading={bookmarkStatus?.isLoading || false}
+              user={user}
+              handleBookmark={handleBookmark}
             />
-            {user?.name}
-          </span>
-          <BookmarkButton
-            isBookmarked={bookmarkStatus?.isBookmarked || false}
-            isLoading={bookmarkStatus?.isLoading || false}
-            user={user}
-            handleBookmark={handleBookmark}
-          />
+          </div>
         </div>
       </div>
-    </div>
+
+      <ImageDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        image={post}
+      />
+    </>
   );
 };
