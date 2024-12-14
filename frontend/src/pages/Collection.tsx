@@ -1,64 +1,57 @@
-import React, { useEffect } from 'react';
-
+import React from 'react';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { fetchUserCollection } from '@store/slices/collectionSlice';
-import {
-  UserPostCard,
-  LoadingSpinner,
-  NoAuthMessage,
-  ErrorMessage,
-  EmptyFeed,
-  SEO
-} from '@components';
+import { UserPostCard, SEO } from '@components';
+import { toggleBookmark } from '@store/slices/imageSlice';
+import { removeImageFromCollection } from '@store/slices/collectionSlice';
 
 export const Collection = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.auth);
-  const { images, loading, error, isInitialized } = useAppSelector(
-    state => state.collection
-  );
+  const { collection } = useAppSelector(state => state.collection);
 
-  useEffect(() => {
-    if (user?.id && !isInitialized) {
-      dispatch(fetchUserCollection(parseInt(user.id)));
+  const handleBookmarkToggle = async (imageId: number) => {
+    if (!user?.id) return;
+
+    try {
+      await dispatch(
+        toggleBookmark({
+          imageId,
+          userId: parseInt(user.id)
+        })
+      ).unwrap();
+
+      // Remove the image from the collection in the UI
+      dispatch(removeImageFromCollection(imageId));
+    } catch (error) {
+      console.error('Failed to toggle bookmark:', error);
     }
-  }, [dispatch, user?.id, isInitialized]);
-
-  let content;
-  if (!user) {
-    content = <NoAuthMessage />;
-  } else if (loading && !isInitialized) {
-    content = <LoadingSpinner />;
-  } else if (error) {
-    content = <ErrorMessage message={error} />;
-  } else if (!images.length) {
-    content = (
-      <EmptyFeed
-        title="Your collection is empty"
-        description="Start saving images to your collection!"
-      />
-    );
-  } else {
-    content = (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Your Collection</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {images.map(image => (
-            <UserPostCard key={image.id} post={image} />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  };
 
   return (
     <>
       <SEO
         title="Collection | Ta'anga"
-        description="View and manage your saved AI-generated artwork collection. Organize and revisit your favorite pieces created with Ta'anga."
-        keywords="AI art collection, saved artwork, digital art portfolio, Ta'anga collection"
+        description="View your saved artwork collection on Ta'anga. Browse and manage your favorite AI-generated images."
+        keywords="AI art collection, saved artwork, image gallery, Ta'anga collection"
       />
-      {content}
+      <section className="w-full p-8">
+        <h1 className="text-2xl font-bold mb-6">Your Collection</h1>
+        {collection?.images?.length === 0 ? (
+          <p className="text-gray-400 text-center mt-8">
+            Your collection is empty. Bookmark some images to see them here!
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {collection?.images?.map(image => (
+              <UserPostCard
+                key={image.id}
+                post={image}
+                onBookmarkToggle={() => handleBookmarkToggle(image.id)}
+              />
+            ))}
+          </div>
+        )}
+      </section>
     </>
   );
 };

@@ -6,11 +6,11 @@ import { COLORS, COLORSHEX, GUIDANCE_SCALE, RESOLUTIONS } from '@constants';
 import { useAutoResize } from '@hooks';
 import type { FormData } from '@types';
 
-type ImageGeneratorFormProps = {
+interface ImageGeneratorFormProps {
   formData: FormData;
   onChange: (formData: FormData) => void;
-  onSubmit: (e: FormEvent) => void;
-};
+  onSubmit: (e: FormEvent) => Promise<void>;
+}
 
 type FieldProps = {
   formData: FormData;
@@ -211,11 +211,11 @@ const GenerateButton = () => (
   </button>
 );
 
-export const ImageGeneratorForm = ({
+export const ImageGeneratorForm: React.FC<ImageGeneratorFormProps> = ({
   formData,
   onChange,
   onSubmit
-}: ImageGeneratorFormProps) => {
+}) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   useAutoResize(textAreaRef);
 

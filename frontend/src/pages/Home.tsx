@@ -3,10 +3,13 @@ import React, { FormEvent, useState, useEffect } from 'react';
 import { ImageGeneratorForm, ImageModal, SEO } from '@components';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
-  handleImageGeneration,
+  generateImage,
+  saveImageToHistory,
   setFormData,
   resetForm
 } from '@store/slices/imageSlice';
+import { addNewImage } from '@store/slices/dataSlice';
+import { fetchUserCollection } from '@store/slices/collectionSlice';
 
 // Import the image directly for type checking
 import DefaultImage from '@assets/images/box-shapes.png';
@@ -34,14 +37,32 @@ export const Home = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(
-        handleImageGeneration(
-          formData,
-          user?.id ? parseInt(user.id) : undefined
-        )
-      );
+      // Generate image for all users
+      const result = await dispatch(generateImage(formData)).unwrap();
+
+      // If user is logged in, save to history and update feed
+      if (user?.id) {
+        try {
+          const userId = parseInt(user.id);
+          const savedImage = await dispatch(
+            saveImageToHistory({
+              userId,
+              formData,
+              imageUrl: result
+            })
+          ).unwrap();
+
+          // Add the new image to the feed
+          await dispatch(addNewImage(savedImage));
+
+          // Optionally refresh collection
+          await dispatch(fetchUserCollection(userId));
+        } catch (error) {
+          console.error('Failed to save image:', error);
+        }
+      }
     } catch (error) {
-      console.error(error);
+      console.error('Image generation error:', error);
     }
   };
 

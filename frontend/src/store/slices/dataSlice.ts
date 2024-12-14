@@ -56,6 +56,36 @@ export const fetchAllData = createAsyncThunk(
   }
 );
 
+interface AddNewImagePayload {
+  image: {
+    id: number;
+    url: string;
+    prompt: string;
+    userId: number;
+    createdAt: string;
+    // Add other relevant fields
+  };
+  userId: number;
+}
+
+export const addNewImage = createAsyncThunk(
+  'data/addNewImage',
+  async (payload: AddNewImagePayload, { rejectWithValue }) => {
+    try {
+      if (!payload.userId) {
+        throw new Error('User ID is required');
+      }
+
+      // Your existing logic here
+      return payload.image;
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to add new image'
+      );
+    }
+  }
+);
+
 const dataSlice = createSlice({
   name: 'data',
   initialState,
@@ -67,19 +97,14 @@ const dataSlice = createSlice({
     resetState: state => {
       return initialState;
     },
-    addNewImage: (state, action) => {
-      // Check if image already exists
-      const imageExists = state.allImages.some(img => img.id === action.payload.id);
-
-      if (!imageExists) {
-        // Add to beginning of allImages
-        state.allImages.unshift(action.payload);
-
-        // If the image belongs to the current user, add to userImages too
-        if (action.payload.userId === state.userImages[0]?.userId) {
-          state.userImages.unshift(action.payload);
-        }
+    addImage: (state, action: PayloadAction<AddNewImagePayload>) => {
+      if (!action.payload.userId) {
+        console.error('User ID is missing');
+        return;
       }
+
+      // Your existing logic here
+      state.images.push(action.payload.image);
     }
   },
   extraReducers: builder => {
@@ -119,5 +144,5 @@ const dataSlice = createSlice({
   }
 });
 
-export const { resetPagination, resetState, addNewImage } = dataSlice.actions;
+export const { resetPagination, resetState, addImage } = dataSlice.actions;
 export default dataSlice.reducer;

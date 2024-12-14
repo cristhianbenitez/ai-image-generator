@@ -113,14 +113,17 @@ export const saveImageToHistory = createAsyncThunk(
       userId,
       formData,
       imageUrl
-    }: { userId: number; formData: FormData; imageUrl: string }
+    }: { userId: number; formData: FormData; imageUrl: string },
+    { rejectWithValue }
   ) => {
     try {
-      // Save image and return the saved image data
+      if (!userId) {
+        throw new Error('User ID is required to save image');
+      }
       const savedImage = await imageService.saveImageToHistory(userId, formData, imageUrl);
       return savedImage;
     } catch (error) {
-      throw new Error(
+      return rejectWithValue(
         error instanceof Error ? error.message : 'Failed to save image'
       );
     }
@@ -152,34 +155,20 @@ export const toggleBookmark = createAsyncThunk(
 );
 
 // Helper action creator to handle the full image generation flow
-export const handleImageGeneration =
-  (formData: FormData, userId?: number) => async (dispatch: AppDispatch) => {
+export const handleImageGeneration = createAsyncThunk(
+  'image/generateImage',
+  async (formData: FormData, { rejectWithValue }) => {
     try {
-      // Generate the image
-      const resultAction = await dispatch(generateImage(formData)).unwrap();
-
-      // If user is logged in, save to history and update state
-      if (userId && resultAction) {
-        const savedImage = await dispatch(
-          saveImageToHistory({
-            userId,
-            formData,
-            imageUrl: resultAction
-          })
-        ).unwrap();
-
-        // Add the new image to the feed immediately
-        dispatch(addNewImage(savedImage));
-
-        // Optionally refresh collection if needed
-        await dispatch(fetchUserCollection(userId));
-      }
-
-      return resultAction;
+      const imageBlob = await imageService.generateImage(formData);
+      const imageUrl = URL.createObjectURL(imageBlob);
+      return imageUrl;
     } catch (error) {
-      throw error;
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to generate image'
+      );
     }
-  };
+  }
+);
 
 const imageSlice = createSlice({
   name: 'image',

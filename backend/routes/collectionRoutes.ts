@@ -122,26 +122,34 @@ router.delete('/:userId/images/:imageId', async (req: Request, res: Response): P
       // Update collection by disconnecting the image
       const updatedCollection = await prisma.collection.update({
         where: {
-          id: collection.id,
-          userId: userId // Additional check to ensure user ownership
+          id: parseInt(collection.id)
         },
         data: {
           images: {
-            disconnect: [{ id: imageId }]
+            disconnect: {
+              id: parseInt(imageId)
+            }
           }
         },
         include: {
-          images: {
-            include: {
-              user: true
-            }
-          }
+          images: true
         }
       });
 
+      // Add error handling
+      if (!updatedCollection) {
+        return res.status(404).json({
+          error: 'Collection not found or update failed'
+        });
+      }
+
       res.json(updatedCollection);
-    } catch (updateError) {
-      throw updateError;
+    } catch (error) {
+      console.error('Error removing image from collection:', error);
+      res.status(500).json({
+        error: 'Failed to remove image from collection',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
 
   } catch (error) {
