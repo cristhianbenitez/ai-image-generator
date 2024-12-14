@@ -122,7 +122,7 @@ export const Home = () => {
         keywords="AI art generator, text to image, AI artwork creator, digital art generator, Ta'anga home"
       />
       <section className="h-full w-full flex items-center justify-center">
-        <div className="w-full mx-[72px] my-[52px] flex justify-center gap-[30px]">
+        <div className="w-full flex justify-center gap-[30px]">
           <ImageGeneratorForm
             formData={formData}
             onChange={handleFormChange}

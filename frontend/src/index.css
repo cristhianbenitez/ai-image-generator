@@ -12,7 +12,7 @@
   }
 
   #root {
-    @apply w-full h-full flex items-center;
+    @apply w-full h-full flex md:flex-row flex-col items-center;
   }
 
   body {
@@ -22,10 +22,10 @@
 
 @layer components {
   .navigation-button {
-    @apply w-10 h-10 flex items-center justify-center rounded-lg cursor-pointer transition-colors duration-200 ease-in-out hover:bg-darkAlt2 focus:bg-darkAlt2;
+    @apply w-10 h-10 flex items-center md:justify-center rounded-lg cursor-pointer transition-colors duration-200 ease-in-out hover:bg-darkAlt2 focus:bg-darkAlt2;
   }
   .active-path {
-    @apply bg-purple focus:bg-purple hover:bg-purple;
+    @apply bg-purple focus:bg-purple hover:bg-purple max-md:w-full max-md:px-2;
   }
 
   .form-group {
@@ -74,4 +74,31 @@ textarea.form-input {
     height: 42px;
     box-sizing: border-box;
   }
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+}
+
+.hamburger .line {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: white;
+  transition: all 0.3s;
+}
+
+.hamburger.active .line:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.active .line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active .line:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
 }
