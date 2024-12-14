@@ -11,8 +11,8 @@ import { useAppSelector } from '@store/hooks';
 import type { GeneratedImage } from '@types';
 
 const HistoryItem = ({ image }: { image: GeneratedImage }) => (
-  <article className="flex gap-10 w-full border-b border-darkAlt pb-10">
-    <div className="w-[327px] h-auto flex-shrink-0 bg-darkAlt rounded-lg p-1">
+  <article className="flex flex-col md:flex-row gap-10 w-full border-b border-darkAlt pb-10">
+    <div className="md:w-[327px] h-auto flex-shrink-0 bg-darkAlt rounded-lg p-1">
       <img
         src={image.imageUrl}
         alt={image.prompt}
@@ -21,7 +21,7 @@ const HistoryItem = ({ image }: { image: GeneratedImage }) => (
       />
     </div>
     <div className="flex flex-col gap-6 flex-grow">
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <h3 className="text-gray text-label mb-2">Prompt details</h3>
           <p className="text-white">{image.prompt}</p>
@@ -31,7 +31,7 @@ const HistoryItem = ({ image }: { image: GeneratedImage }) => (
           <p className="text-gray">{image.negativePrompt || 'Null'}</p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <h3 className="text-gray text-label mb-2">Created on</h3>
           <p className="text-white">

@@ -1,6 +1,6 @@
 import React, { FormEvent, useState, useEffect } from 'react';
 
-import { ImageGeneratorForm, ImageModal, SEO } from '@components';
+import { ErrorMessage, ImageGeneratorForm, ImageModal, SEO } from '@components';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
   generateImage,
@@ -70,7 +70,6 @@ export const Home = () => {
     dispatch(setFormData(newFormData));
   };
 
-  // Use regular img for loading state to avoid optimization overhead
   const renderContent = () => {
     if (status === 'loading') {
       return (
@@ -84,12 +83,7 @@ export const Home = () => {
     }
 
     if (error) {
-      return (
-        <div className="text-red-500 text-center p-4">
-          <p>Error: {error}</p>
-          <p className="text-sm mt-2">Please try again</p>
-        </div>
-      );
+      return <ErrorMessage message={error} />;
     }
 
     // Use the imported default image or the generated image
@@ -121,15 +115,15 @@ export const Home = () => {
         description="Transform your ideas into stunning artwork with Ta'anga's AI image generator. Create unique, high-quality images from text descriptions instantly."
         keywords="AI art generator, text to image, AI artwork creator, digital art generator, Ta'anga home"
       />
-      <section className="h-full w-full flex items-center justify-center">
-        <div className="w-full flex justify-center gap-[30px]">
+      <section className="h-full w-full flex flex-col md:flex-row items-center md:justify-center">
+        <div className="w-full flex flex-col md:flex-row justify-center gap-[30px]">
           <ImageGeneratorForm
             formData={formData}
             onChange={handleFormChange}
             onSubmit={handleSubmit}
           />
 
-          <div className="max-w-[511px] w-full h-[511px] bg-darkAlt rounded-lg flex items-center justify-center relative">
+          <div className="max-w-[511px] max-sm:mb-16 w-full h-[511px] bg-darkAlt rounded-lg flex items-center justify-center relative">
             {renderContent()}
           </div>
         </div>

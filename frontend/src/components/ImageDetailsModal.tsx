@@ -5,6 +5,7 @@ import type { GeneratedImage } from '@types';
 import { useAppDispatch } from '@store/hooks';
 import { setFormData } from '@store/slices/imageSlice';
 import downloadIcon from '@assets/icons/download.svg';
+import generateIcon from '@assets/icons/home.svg';
 
 interface ImageDetailsModalProps {
   isOpen: boolean;
@@ -36,7 +37,7 @@ const CloseButton: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 // Image preview section component
 const ImagePreview: React.FC<{ image: GeneratedImage }> = ({ image }) => (
   <section className="flex flex-col gap-4">
-    <figure className="p-1 bg-darkAlt rounded-md h-fit w-[292px]">
+    <figure className="p-1 bg-darkAlt rounded-md h-fit md:w-[292px]">
       <img
         src={image.imageUrl}
         alt={image.prompt}
@@ -71,7 +72,7 @@ const ImageDetails: React.FC<{
 
   return (
     <section className="flex justify-between mb-6 flex-col">
-      <dl className="space-y-2">
+      <dl className="space-y-2 mb-6">
         {imageDetails.map(({ label, value }) => (
           <div key={label}>
             <dt className="text-gray font-semibold text-small mb-2">{label}</dt>
@@ -86,6 +87,7 @@ const ImageDetails: React.FC<{
         className="w-full bg-[#7B61FF] hover:bg-[#7B61FF]/90 text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
         type="button"
       >
+        <img src={generateIcon} alt="Generate icon" />
         Generate with these settings
       </button>
     </section>
@@ -127,7 +129,7 @@ export const ImageDetailsModal: React.FC<ImageDetailsModalProps> = ({
       aria-labelledby="modal-title"
     >
       <div
-        className="bg-[#1A1B1E] relative p-8 rounded-xl flex shadow-lg gap-8 max-w-[820px] max-h-[592px] h-full w-full"
+        className="bg-[#1A1B1E] relative p-8 rounded-xl flex flex-col md:flex-row shadow-lg gap-8 max-w-[482px] md:max-w-[820px] h-fit md:max-h-[592px]"
         onClick={e => e.stopPropagation()}
       >
         <CloseButton onClose={onClose} />

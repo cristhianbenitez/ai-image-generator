@@ -135,7 +135,7 @@ export const Sidebar: React.FC = () => {
   const handleLogout = () => dispatch(logout());
 
   return (
-    <>
+    <div className="relative h-16 md:h-full">
       <MobileTopBar showLogout={showLogout} setShowLogout={setShowLogout} />
 
       {/* Background Overlay */}
@@ -176,6 +176,6 @@ export const Sidebar: React.FC = () => {
           setShowLogout={setShowLogout}
         />
       </aside>
-    </>
+    </div>
   );
 };
