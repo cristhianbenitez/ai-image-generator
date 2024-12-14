@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useRef, useCallback } from 'react';
 import Masonry from 'react-masonry-css';
 
+import searchIcon from '@assets/icons/search.svg';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { fetchAllData } from '@store/slices/dataSlice';
 import {
@@ -16,9 +17,15 @@ import { BREAKPOINT_COLUMNS } from '@constants';
 export const Feed = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.auth);
-  const { allImages, loading, error, currentPage, hasMore, isInitialized, lastFetched } = useAppSelector(
-    state => state.data
-  );
+  const {
+    allImages,
+    loading,
+    error,
+    currentPage,
+    hasMore,
+    isInitialized,
+    lastFetched
+  } = useAppSelector(state => state.data);
 
   // Reference for our observer
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -93,6 +100,22 @@ export const Feed = () => {
   } else {
     content = (
       <div className="w-full mx-auto px-4 py-8">
+        {/* TODO: Add search functionality */}
+        <div className="relative mb-6 max-w-[512px]">
+          <input
+            type="text"
+            placeholder="Search images by keywords"
+            className="w-full px-4 py-3 bg-transparent border-2 border-darkAlt rounded-lg text-white placeholder:text-gray focus:outline-none focus:ring-2 focus:ring-[#7B61FF]"
+          />
+          <button
+            type="button"
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+            aria-label="Search"
+          >
+            <img src={searchIcon} alt="Search icon" />
+          </button>
+        </div>
+
         <Suspense fallback={<LoadingSpinner />}>
           <Masonry
             breakpointCols={BREAKPOINT_COLUMNS}
@@ -109,7 +132,9 @@ export const Feed = () => {
             ref={loadingTriggerRef}
             className="w-full h-10 flex items-center justify-center"
           >
-            {loading && hasMore && <LoadingSpinner size="small" message="Loading more..." />}
+            {loading && hasMore && (
+              <LoadingSpinner size="small" message="Loading more..." />
+            )}
           </div>
         </Suspense>
       </div>
