@@ -9,6 +9,8 @@ interface CollectionState {
   error: string | null;
   isInitialized: boolean;
   lastFetched: number | null;
+  currentPage: number;
+  hasMore: boolean;
 }
 
 const initialState: CollectionState = {
@@ -16,7 +18,9 @@ const initialState: CollectionState = {
   loading: false,
   error: null,
   isInitialized: false,
-  lastFetched: null
+  lastFetched: null,
+  currentPage: 1,
+  hasMore: true
 };
 
 // Cache duration in milliseconds (e.g., 5 minutes)
@@ -65,8 +69,9 @@ const collectionSlice = createSlice({
     clearCollectionError: (state) => {
       state.error = null;
     },
-    invalidateCache: (state) => {
-      state.lastFetched = null;
+    resetPagination: (state) => {
+      state.currentPage = 1;
+      state.hasMore = true;
     }
   },
   extraReducers: (builder) => {
@@ -121,5 +126,5 @@ const collectionSlice = createSlice({
   }
 });
 
-export const { clearCollectionError, invalidateCache } = collectionSlice.actions;
+export const { clearCollectionError, resetPagination } = collectionSlice.actions;
 export default collectionSlice.reducer;

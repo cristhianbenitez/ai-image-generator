@@ -2,7 +2,10 @@ import React, { FC, useState, useMemo } from 'react';
 
 import BookmarkIcon from '@assets/icons/bookmark.svg';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { toggleBookmark, makeSelectBookmarkStatus } from '@store/slices/imageSlice';
+import {
+  toggleBookmark,
+  makeSelectBookmarkStatus
+} from '@store/slices/imageSlice';
 import { openAuthModal } from '@store/slices/authSlice';
 import type { GeneratedImage } from '@types';
 import { RootState } from '@store';
@@ -33,8 +36,7 @@ const BookmarkButton: FC<BookmarkButtonProps> = ({
     }}
     disabled={isLoading}
     className={`w-7 h-7 flex z-30 items-center justify-center rounded-lg
-        ${isBookmarked ? 'bg-purple' : 'bg-darkAlt hover:bg-darkAlt2'}
-        ${isLoading ? 'animate-pulse' : ''}`}
+        ${isBookmarked || isLoading ? 'bg-purple' : 'bg-darkAlt hover:bg-darkAlt2'}`}
     title={isAuthenticated ? 'Bookmark image' : 'Login to bookmark'}
   >
     <img src={BookmarkIcon} alt="Bookmark icon" />
@@ -44,13 +46,17 @@ const BookmarkButton: FC<BookmarkButtonProps> = ({
 export const UserPostCard: FC<UserPostCardProps> = ({ post, onDelete }) => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const { user, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated } = useAppSelector(
+    (state: RootState) => state.auth
+  );
 
   // Create memoized selector instance
   const selectBookmarkStatus = useMemo(makeSelectBookmarkStatus, []);
 
   // Use memoized selector
-  const bookmarkStatus = useAppSelector(state => selectBookmarkStatus(state, post));
+  const bookmarkStatus = useAppSelector(state =>
+    selectBookmarkStatus(state, post)
+  );
 
   const { id, prompt, imageUrl } = post;
 

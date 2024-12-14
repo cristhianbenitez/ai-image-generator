@@ -5,7 +5,7 @@ import {
 } from '@reduxjs/toolkit';
 import { imageService } from '@services';
 import type { FormData } from '@types';
-import { fetchAllData } from './dataSlice';
+import { fetchAllData, resetPagination, resetState, addNewImage } from './dataSlice';
 import { fetchUserCollection } from './collectionSlice';
 import type { AppDispatch } from '@store';
 import type { RootState } from '@store';
@@ -113,19 +113,12 @@ export const saveImageToHistory = createAsyncThunk(
       userId,
       formData,
       imageUrl
-    }: { userId: number; formData: FormData; imageUrl: string },
-    { dispatch }
+    }: { userId: number; formData: FormData; imageUrl: string }
   ) => {
     try {
-      await imageService.saveImageToHistory(userId, formData, imageUrl);
-
-      // Refresh data after saving
-      await Promise.all([
-        dispatch(
-          fetchAllData({ userId: userId.toString(), forceRefresh: true })
-        ),
-        dispatch(fetchUserCollection(userId))
-      ]);
+      // Save image and return the saved image data
+      const savedImage = await imageService.saveImageToHistory(userId, formData, imageUrl);
+      return savedImage;
     } catch (error) {
       throw new Error(
         error instanceof Error ? error.message : 'Failed to save image'
@@ -165,15 +158,21 @@ export const handleImageGeneration =
       // Generate the image
       const resultAction = await dispatch(generateImage(formData)).unwrap();
 
-      // If user is logged in, save to history and refresh data
+      // If user is logged in, save to history and update state
       if (userId && resultAction) {
-        await dispatch(
+        const savedImage = await dispatch(
           saveImageToHistory({
             userId,
             formData,
             imageUrl: resultAction
           })
         ).unwrap();
+
+        // Add the new image to the feed immediately
+        dispatch(addNewImage(savedImage));
+
+        // Optionally refresh collection if needed
+        await dispatch(fetchUserCollection(userId));
       }
 
       return resultAction;

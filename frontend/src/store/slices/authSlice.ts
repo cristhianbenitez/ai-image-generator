@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { AppDispatch } from '@store';
 import type { User } from '@types';
-import { fetchAllData, invalidateCache } from './dataSlice';
+import { fetchAllData, resetPagination } from './dataSlice';
 import { fetchUserCollection } from './collectionSlice';
 
 interface AuthState {
@@ -29,7 +29,7 @@ export const setUserAndFetchData =
   (user: User | null) => async (dispatch: AppDispatch) => {
     dispatch(setUser(user));
     if (user) {
-      dispatch(invalidateCache());
+      dispatch(resetPagination());
       await Promise.all([
         dispatch(fetchAllData({ userId: user.id })),
         dispatch(fetchUserCollection(parseInt(user.id)))
